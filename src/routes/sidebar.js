@@ -19,42 +19,40 @@ const routes = [
     icon: <ChartPie className={iconClasses} />,
     name: "Overview",
   },
+  // {
+  //   path: "", //no url needed as this has submenu
+  //   icon: <CpuChipIcon className={`${iconClasses} inline`} />,
+  //   name: "Platform",
+  // },
   {
-    path: "", //no url needed as this has submenu
-    icon: <CpuChipIcon className={`${iconClasses} inline`} />,
-    name: "Platform",
-    submenu: [
-      {
-        path: "/assistants",
-        icon: <UserIcon className={submenuIconClasses} />,
-        name: "Assistants",
-      },
-      {
-        path: "/phone-numbers",
-        icon: <PhoneIcon className={submenuIconClasses} />,
-        name: "Phone Numbers",
-      },
-      {
-        path: "/files",
-        icon: <DocumentTextIcon className={`${iconClasses} inline`} />,
-        name: "Files",
-      },
-      {
-        path: "/tools",
-        icon: <ToolsIcon className={submenuIconClasses} />,
-        name: "Tools",
-      },
-      {
-        path: "/blocks",
-        icon: <Squares2X2Icon className={iconClasses} />,
-        name: "Blocks",
-      },
-      {
-        path: "/squads",
-        icon: <UsersIcon className={submenuIconClasses} />,
-        name: "Squads",
-      },
-    ],
+    path: "/assistants",
+    icon: <UserIcon className={submenuIconClasses} />,
+    name: "Assistants",
+  },
+  {
+    path: "/phone-numbers",
+    icon: <PhoneIcon className={submenuIconClasses} />,
+    name: "Phone Numbers",
+  },
+  {
+    path: "/files",
+    icon: <DocumentTextIcon className={`${iconClasses} inline`} />,
+    name: "Files",
+  },
+  {
+    path: "/tools",
+    icon: <ToolsIcon className={submenuIconClasses} />,
+    name: "Tools",
+  },
+  {
+    path: "/blocks",
+    icon: <Squares2X2Icon className={iconClasses} />,
+    name: "Blocks",
+  },
+  {
+    path: "/squads",
+    icon: <UsersIcon className={submenuIconClasses} />,
+    name: "Squads",
   },
   {
     path: "/voice-library",
