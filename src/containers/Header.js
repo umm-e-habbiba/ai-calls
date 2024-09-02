@@ -8,7 +8,8 @@ import SunIcon from "@heroicons/react/24/outline/SunIcon";
 import { openRightDrawer } from "../features/common/rightDrawerSlice";
 import { RIGHT_DRAWER_TYPES } from "../utils/globalConstantUtil";
 
-import { NavLink, Routes, Link, useLocation } from "react-router-dom";
+import { NavLink, Routes, Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Header() {
   const dispatch = useDispatch();
@@ -16,6 +17,9 @@ function Header() {
   const [currentTheme, setCurrentTheme] = useState(
     localStorage.getItem("theme")
   );
+
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     themeChange(false);
@@ -44,8 +48,21 @@ function Header() {
   };
 
   function logoutUser() {
+
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const userName = storedUser?.firstName;
+    toast.success(`GoodBye ${userName}`, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/login");
+    
   }
 
   return (

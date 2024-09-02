@@ -1,5 +1,7 @@
 import React, { lazy, useEffect } from "react";
 import "./App.css";
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
   BrowserRouter as Router,
   Route,
@@ -9,6 +11,7 @@ import {
 import { themeChange } from "theme-change";
 import checkAuth from "./app/auth";
 import initializeApp from "./app/init";
+import { ToastContainer } from "react-toastify";
 
 // Importing pages
 const Layout = lazy(() => import("./containers/Layout"));
@@ -48,6 +51,8 @@ function App() {
             }
           />
         </Routes>
+        <ToastContainer />
+
       </Router>
     </>
   );
