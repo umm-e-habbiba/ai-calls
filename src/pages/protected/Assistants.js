@@ -100,7 +100,7 @@ const Assistants = () => {
                 ))}
             </div>
           </div>
-          <div className="col-span-2 p-3">
+          <div className="col-span-2 p-3 w-full">
             <div className="flex justify-between items-center mb-3">
               <div class="ellipsis-text font-bold text-xl">
                 {currentAssistant.name}
