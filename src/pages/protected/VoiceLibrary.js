@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { RiVoiceprintLine } from "react-icons/ri";
 import ControlDiv from "../../components/Voice Library Components/ControlDiv";
 import PrivateVoicesAccordion from "../../components/Voice Library Components/PrivateVoicesAccordion";
@@ -12,6 +12,7 @@ import {
 } from "react-accessible-accordion";
 import PrivateVoices from "../../components/Voice Library Components/PrivateVoices";
 import PublicVoices from "../../components/Voice Library Components/PublicVoices";
+import { InfinitySpin } from "react-loader-spinner";
 
 const VoiceLibrary = () => {
   const publicVoices = [
@@ -39,6 +40,9 @@ const VoiceLibrary = () => {
     "Private Voice 1",
   ];
 
+  const [privateButtonClicked, setPrivateButtonClicked] = useState(false);
+  const [publicButtonClicked, setPublicButtonClicked] = useState(false);
+
   return (
     <>
       <div className="flex items-center gap-2 w-full">
@@ -47,42 +51,81 @@ const VoiceLibrary = () => {
       </div>
       <div className="p-5 flex flex-col gap-y-5">
         <ControlDiv />
-        <Accordion
-          allowZeroExpanded
-          allowMultipleExpanded
-          className="flex flex-col gap-2"
-        >
-          <AccordionItem>
-            <AccordionItemHeading>
-              <AccordionItemButton>
-                <PrivateVoicesAccordion />
-              </AccordionItemButton>
-            </AccordionItemHeading>
-            <AccordionItemPanel>
-              <div className="sm:grid sm:grid-cols-2 sm:gap-x-2 md:grid-cols-3">
-                {privateVoices.map((privateVoice, index) => {
-                  return (
-                    <PrivateVoices privateVoice={privateVoice} key={index} />
-                  );
-                })}
-              </div>
-            </AccordionItemPanel>
-          </AccordionItem>
-          <AccordionItem>
-            <AccordionItemHeading>
-              <AccordionItemButton>
-                <PublicVoicesAccordion />
-              </AccordionItemButton>
-            </AccordionItemHeading>
-            <AccordionItemPanel>
-              <div className="sm:grid sm:grid-cols-2 sm:gap-x-2 md:grid-cols-3">
-                {publicVoices.map((publicVoice, index) => {
-                  return <PublicVoices publicVoice={publicVoice} key={index} />;
-                })}
-              </div>
-            </AccordionItemPanel>
-          </AccordionItem>
-        </Accordion>
+        {privateVoices !== null && publicVoices !== null ? (
+          <>
+            <Accordion
+              allowZeroExpanded
+              allowMultipleExpanded
+              className="flex flex-col gap-2"
+            >
+              <AccordionItem>
+                <AccordionItemHeading
+                  onClick={() => setPrivateButtonClicked(!privateButtonClicked)}
+                >
+                  <AccordionItemButton>
+                    <PrivateVoicesAccordion
+                      privateButtonClicked={privateButtonClicked}
+                    />
+                  </AccordionItemButton>
+                </AccordionItemHeading>
+                <AccordionItemPanel>
+                  <div className="sm:grid sm:grid-cols-2 sm:gap-x-2 md:grid-cols-3">
+                    {privateVoices.map((privateVoice, index) => {
+                      return (
+                        <PrivateVoices
+                          privateVoice={privateVoice}
+                          key={index}
+                        />
+                      );
+                    })}
+                  </div>
+                </AccordionItemPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionItemHeading
+                  onClick={() => setPublicButtonClicked(!publicButtonClicked)}
+                >
+                  <AccordionItemButton>
+                    <PublicVoicesAccordion
+                      publicButtonClicked={publicButtonClicked}
+                    />
+                  </AccordionItemButton>
+                </AccordionItemHeading>
+                <AccordionItemPanel>
+                  <div className="sm:grid sm:grid-cols-2 sm:gap-x-2 md:grid-cols-3">
+                    {publicVoices.map((publicVoice, index) => {
+                      return (
+                        <PublicVoices publicVoice={publicVoice} key={index} />
+                      );
+                    })}
+                  </div>
+                </AccordionItemPanel>
+              </AccordionItem>
+            </Accordion>
+          </>
+        ) : (
+          <>
+            <div className="w-full h-full flex flex-col justify-center items-center">
+              <InfinitySpin
+                visible={true}
+                width="200"
+                color="#1E40AF"
+                ariaLabel="infinity-spin-loading"
+              />
+              {/* <TailSpin
+              visible={true}
+              height="80"
+              width="80"
+              color="#1E40AF"
+              ariaLabel="tail-spin-loading"
+              radius="1"
+              wrapperStyle={{}}
+              wrapperClass=""
+            /> */}
+              <p className="">Loading Data...</p>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
