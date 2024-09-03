@@ -15,9 +15,16 @@ import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import ChatIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
 import SpeakerIcon from "@heroicons/react/24/outline/SpeakerXMarkIcon";
 import PhoneXIcon from "@heroicons/react/24/outline/PhoneXMarkIcon";
+import CameraIcon from "@heroicons/react/24/outline/VideoCameraIcon";
+import LockIcon from "@heroicons/react/24/outline/LockClosedIcon";
 import { openRightDrawer } from "../../features/common/rightDrawerSlice";
 import { RIGHT_DRAWER_TYPES } from "../../utils/globalConstantUtil";
-import { BiDialpad, BiInjection } from "react-icons/bi";
+import { BiDialpad, BiInjection, BiWifiOff } from "react-icons/bi";
+import { GiSandsOfTime } from "react-icons/gi";
+import { LuTimerReset } from "react-icons/lu";
+import { TbRulerMeasure } from "react-icons/tb";
+import { IoTimerOutline } from "react-icons/io5";
+import { MdLineStyle } from "react-icons/md";
 import {
   CCard,
   CCardBody,
@@ -42,6 +49,7 @@ import {
   CTabPane,
   CTooltip,
 } from "@coreui/react";
+import Multiselect from "multiselect-react-dropdown";
 const Assistants = () => {
   const dispatch = useDispatch();
   const [noAssistant, setNoAssistant] = useState(false);
@@ -61,7 +69,36 @@ const Assistants = () => {
     },
   ]);
   const [activeKey, setActiveKey] = useState("model");
-  const [temperature, setTemperature] = useState("1.2");
+  const [temperature, setTemperature] = useState(1.2);
+  const [silenceTimeout, setSilenceTimeout] = useState(260);
+  const [responseDelay, setResponseDelay] = useState(0.9);
+  const [LlmReqDelay, setLlmReqDelay] = useState(1.5);
+  const [interruption, setInterruption] = useState(5);
+  const [maxDuration, setMaxDuration] = useState(1800);
+  const [maxIdleMessages, setMaxIdleMessages] = useState(3);
+  const [idleTimeout, setIdleTimeout] = useState(7.5);
+
+  const MESSAGES = [
+    "conversation-update",
+    "end-of-call-report",
+    "function-call",
+    "hang",
+    "model-output",
+    "phone-call-control",
+    "speech-update",
+    "status-update",
+    "transcript",
+    "tool-calls",
+    "transfer-destination-request",
+    "user-interrupted",
+    "voice-input",
+  ];
+
+  const IDLEMESSAGES = [
+    "Are you still there?",
+    "IS there anything else you can help with",
+    "Feel free to ask any questions.",
+  ];
 
   useEffect(() => {
     setCurrentAssistant(
@@ -202,8 +239,14 @@ const Assistants = () => {
                       value={54}
                       className="bg-[#5dfeca] h-[13px] rounded-l-full"
                     />
-                    <CProgress value={11} className="bg-[#db2777] h-[13px]" />
-                    <CProgress value={11} className="bg-[#0ea5e9] h-[13px]" />
+                    <CProgress
+                      value={11}
+                      className="bg-[#db2777] h-[13px] rounded-none"
+                    />
+                    <CProgress
+                      value={11}
+                      className="bg-[#0ea5e9] h-[13px] rounded-none"
+                    />
                     <CProgress
                       value={24}
                       className="bg-[#fcd34d] h-[13px] rounded-r-full"
@@ -237,9 +280,18 @@ const Assistants = () => {
                       value={11}
                       className="bg-[#5dfeca] h-[13px] rounded-l-full"
                     />
-                    <CProgress value={40} className="bg-[#db2777] h-[13px]" />
-                    <CProgress value={11} className="bg-[#0ea5e9] h-[13px]" />
-                    <CProgress value={24} className="bg-[#fcd34d] h-[13px]" />
+                    <CProgress
+                      value={40}
+                      className="bg-[#db2777] h-[13px] rounded-none"
+                    />
+                    <CProgress
+                      value={11}
+                      className="bg-[#0ea5e9] h-[13px] rounded-none"
+                    />
+                    <CProgress
+                      value={24}
+                      className="bg-[#fcd34d] h-[13px] rounded-none"
+                    />
                     <CProgress
                       value={14}
                       className="bg-[#c026d3] h-[13px] rounded-r-full"
@@ -391,7 +443,7 @@ const Assistants = () => {
                                 <CTooltip
                                   content="The first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.)."
                                   placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                                 >
                                   <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                                 </CTooltip>
@@ -413,7 +465,7 @@ const Assistants = () => {
                                 <CTooltip
                                   content="The system prompt can be used to configure the context, role, personality, instructions and so on for the assistant."
                                   placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                                 >
                                   <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                                 </CTooltip>
@@ -446,7 +498,7 @@ const Assistants = () => {
                                 <CTooltip
                                   content="We benchmark and rank ~20 models and instances across Azure and OpenAI for GPT 3.5 picking fastest at any one moment."
                                   placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                                 >
                                   <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                                 </CTooltip>
@@ -480,7 +532,7 @@ const Assistants = () => {
                                   <CTooltip
                                     content="The temperature is used to control the randomness of the output. When you set it higher, you'll get more random outputs. When you set it lower, towards 0, the values are more deterministic."
                                     placement="top"
-                                    className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                    className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                                   >
                                     <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                                   </CTooltip>
@@ -505,7 +557,7 @@ const Assistants = () => {
                                 <CTooltip
                                   content="This is the max number of tokens that the assistant will be allowed to generate in each turn of the conversation."
                                   placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                                 >
                                   <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                                 </CTooltip>
@@ -522,7 +574,7 @@ const Assistants = () => {
                                 <CTooltip
                                   content="Enable this property to detect user's emotion such as anger, joy etc. and feed it as an additional context to the model"
                                   placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                                 >
                                   <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                                 </CTooltip>
@@ -676,7 +728,7 @@ const Assistants = () => {
                               <CTooltip
                                 content="This is the background sound in the call. Default for phone calls is 'office' and default for web calls is 'off'."
                                 placement="top"
-                                className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                               >
                                 <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                               </CTooltip>
@@ -696,7 +748,7 @@ const Assistants = () => {
                               <CTooltip
                                 content="This is the minimum number of characters that will be passed to the voice provider. This helps decides the minimum chunk size that is sent to the voice provider for the voice generation as the LLM tokens are streaming in."
                                 placement="top"
-                                className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                                className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                               >
                                 <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                               </CTooltip>
@@ -742,12 +794,14 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                          />
-                          <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
                         </div>
                         <hr />
                         <div className=" flex justify-between items-center py-3">
@@ -764,12 +818,14 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                          />
-                          <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
                         </div>
                         <hr />
                         <div className=" flex justify-between items-center py-3">
@@ -785,12 +841,14 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                          />
-                          <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
                         </div>
                       </div>
                     </CCardBody>
@@ -856,12 +914,14 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                          />
-                          <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
                         </div>
                         <hr />
                         <div className=" flex justify-between items-center py-3">
@@ -877,12 +937,34 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                          />
-                          <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                        <hr />
+                        <div className="mt-2">
+                          <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            Forwarding Phone Number
+                          </label>
+                          <div class="flex">
+                            <CFormSelect class="text-sm rounded-l-lg block w-auto p-2.5 mb-2">
+                              <option>Select Country</option>
+                              <option value="1">One</option>
+                              <option value="2">Two</option>
+                              <option value="3" disabled>
+                                Three
+                              </option>
+                            </CFormSelect>
+                            <input
+                              type="text"
+                              className="text-sm rounded-r-lg block w-full p-2.5 mb-2"
+                            />
+                          </div>
                         </div>
                         <hr />
                         <div className="py-3">
@@ -891,7 +973,7 @@ const Assistants = () => {
                             <CTooltip
                               content="Enter phrases, separated by commas, that will trigger the bot to end the call when spoken. (End Call Phrases work well with gpt-3.5-turbo and smaller models.)"
                               placement="top"
-                              className="bg-black w-[200px] rounded-xl p-2 text-wrap"
+                              className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                             >
                               <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                             </CTooltip>
@@ -927,7 +1009,6 @@ const Assistants = () => {
                       </div>
                       <button
                         type="button"
-                        onClick={() => openNotification()}
                         disabled
                         // className="w-full border-3 border-dashed text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 text-center flex justify-center items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         class="group text-text w-full flex items-center justify-center gap-2 bg-icon/30 border-2 border-dashed border-icon/50 rounded-xl p-3 hover:bg-icon/50 transition-all duration-150 ease-in-out active:border-2 active:border-dashed opacity-25 cursor-not-allowed border-black dark:border-gray-300"
@@ -945,7 +1026,439 @@ const Assistants = () => {
                   aria-labelledby="advanced-tab"
                   visible={activeKey === "advanced"}
                 >
-                  advanced tab content
+                  <CCard className="mt-5">
+                    <CCardBody className="bg-background/80">
+                      <h1 className="font-extrabold">Privacy</h1>
+                      <p>
+                        This section allows you to configure the privacy
+                        settings for the assistant.
+                      </p>
+                      <div className="rounded-xl p-3 border bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow mt-3">
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <LockIcon className="w-7 h-7 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize flex justify-start items-center">
+                                HIPAA Compliance
+                                <CTooltip
+                                  content="HIPAA Compliance is enforced at the organization level and overrides individual settings."
+                                  placement="top"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
+                                >
+                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-3" />
+                                </CTooltip>
+                              </span>
+                              <span className="text-xs">
+                                When this is enabled, no logs, recordings, or
+                                transcriptions will be stored.
+                              </span>
+                            </div>
+                          </div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                        <hr />
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <MicrophoneIcon className="w-7 h-7 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                Audio Recording
+                              </span>
+                              <span className="text-xs">
+                                Record the conversation with the assistant.
+                              </span>
+                            </div>
+                          </div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              checked
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                        <hr />
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <CameraIcon className="w-7 h-7 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize flex justify-start items-center">
+                                Video Recording
+                                <CTooltip
+                                  content="Video recording is only possible on web calls."
+                                  placement="top"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
+                                >
+                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-3" />
+                                </CTooltip>
+                              </span>
+                              <span className="text-xs">
+                                Enable or disable video recording during a web
+                                call. This will record the video of your user.
+                              </span>
+                            </div>
+                          </div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              value=""
+                              checked
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                        <hr />
+                      </div>
+                    </CCardBody>
+                  </CCard>
+                  <CCard className="mt-5">
+                    <CCardBody className="bg-background/80">
+                      <h1 className="font-extrabold">Pipeline Configuration</h1>
+                      <p>
+                        This section allows you to configure the pipeline
+                        settings for the assistant.
+                      </p>
+                      <div className="rounded-xl p-3 border bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow mt-3">
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <GiSandsOfTime className="w-7 h-6 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                Silence Timeout
+                              </span>
+                              <span className="text-xs">
+                                How long to wait before a call is automatically
+                                ended due to inactivity.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <CFormRange
+                              min={10}
+                              max={600}
+                              step={1}
+                              value={silenceTimeout}
+                              defaultValue={silenceTimeout}
+                              onChange={(e) =>
+                                setSilenceTimeout(e.target.value)
+                              }
+                              class="w-full h-1"
+                            />
+                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                              {silenceTimeout}
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <LuTimerReset className="w-7 h-6 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                Response Delay
+                              </span>
+                              <span className="text-xs">
+                                The minimum number of seconds the assistant
+                                waits after user speech before it starts
+                                speaking.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <CFormRange
+                              min={0}
+                              max={2}
+                              step={0.1}
+                              value={responseDelay}
+                              defaultValue={responseDelay}
+                              onChange={(e) => setResponseDelay(e.target.value)}
+                              class="w-full h-1"
+                            />
+                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                              {responseDelay}
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <BiWifiOff className="w-7 h-6 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                LLM Request Delay
+                              </span>
+                              <span className="text-xs">
+                                The minimum number of seconds to wait after
+                                punctuation before sending a request to the LLM.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <CFormRange
+                              min={0}
+                              max={3}
+                              step={0.1}
+                              value={LlmReqDelay}
+                              defaultValue={LlmReqDelay}
+                              onChange={(e) => setLlmReqDelay(e.target.value)}
+                              class="w-full h-1"
+                            />
+                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                              {LlmReqDelay}
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <TbRulerMeasure className="w-7 h-6 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                Interruption Threshold
+                              </span>
+                              <span className="text-xs">
+                                The number of words the user must say before the
+                                assistant considers being interrupted.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <CFormRange
+                              min={0}
+                              max={10}
+                              step={1}
+                              value={interruption}
+                              defaultValue={interruption}
+                              onChange={(e) => setInterruption(e.target.value)}
+                              class="w-full h-1"
+                            />
+                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                              {interruption}
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <IoTimerOutline className="w-7 h-6 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                Maximum Duration
+                              </span>
+                              <span className="text-xs">
+                                The maximum number of seconds a call will last.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <CFormRange
+                              min={10}
+                              max={3600}
+                              step={10}
+                              value={maxDuration}
+                              defaultValue={maxDuration}
+                              onChange={(e) => setMaxDuration(e.target.value)}
+                              class="w-full h-1"
+                            />
+                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                              {maxDuration}
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                      </div>
+                    </CCardBody>
+                  </CCard>
+                  <CCard className="mt-5">
+                    <CCardBody className="bg-background/80">
+                      <h1 className="font-extrabold">Messaging</h1>
+                      <p>
+                        Message configuration for messages that are sent to and
+                        from the assistant.
+                      </p>
+                      <div className="rounded-xl p-3 border bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow mt-3">
+                        <div>
+                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            Server Url
+                          </label>
+                          <div className="text-xs mb-1">
+                            This is the URL Vapi will use to communicate
+                            messages via HTTP POST Requests. This is used for
+                            retrieving context, function calling, and
+                            end-of-call reports.
+                          </div>
+                          <CFormInput
+                            class="text-sm rounded-lg block w-full p-2.5 my-2"
+                            placeholder="Endpoint URL to handle Server messages"
+                          />
+                        </div>
+                        <hr />
+                        <div className="mt-3">
+                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            Client Messages
+                          </label>
+                          <div className="text-xs mb-1">
+                            These are the messages that will be sent to the
+                            Client SDKs.
+                          </div>
+                          <Multiselect
+                            isObject={false}
+                            onRemove={(event) => {
+                              console.log(event);
+                            }}
+                            onSelect={(event) => {
+                              console.log(event);
+                            }}
+                            options={MESSAGES}
+                            showCheckbox={true}
+                            placeholder="Select Client Messages"
+                            className="text-sm rounded-lg block w-full my-2 bg-white dark:bg-black border-none"
+                          />
+                        </div>
+                        <hr />
+                        <div className="mt-3">
+                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            Server Messages
+                          </label>
+                          <div className="text-xs mb-1">
+                            These are the messages that will be sent to the
+                            Server URL configured.
+                          </div>
+                          <Multiselect
+                            isObject={false}
+                            onRemove={(event) => {
+                              console.log(event);
+                            }}
+                            onSelect={(event) => {
+                              console.log(event);
+                            }}
+                            options={MESSAGES}
+                            placeholder="Select Server Messages"
+                            className="text-sm rounded-lg block w-full my-2 bg-white dark:bg-black border-none"
+                          />
+                        </div>
+                        <hr />
+                        <div className="my-2">
+                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            Voicemail Message
+                          </label>
+                          <div className="text-xs mb-1">
+                            This is the message that the assistant will say if
+                            the call is forwarded to voicemail.
+                          </div>
+                          <CFormInput
+                            class="text-sm rounded-lg block w-full p-2.5 mt-2"
+                            placeholder="Hey, can you please callback? Thanks!"
+                          />
+                        </div>
+                        <hr />
+                        <div className="my-2">
+                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            End Call Message
+                          </label>
+                          <div className="text-xs mb-1">
+                            This is the message that the assistant will say if
+                            it ends the call.
+                          </div>
+                          <CFormInput
+                            class="text-sm rounded-lg block w-full p-2.5 mt-2"
+                            placeholder="Goodbye!"
+                          />
+                        </div>
+                        <hr />
+                        <div className="my-2">
+                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            Idle Messages
+                          </label>
+                          <div className="text-xs mb-1">
+                            Messages that the assistant will speak when the user
+                            hasn't responded.
+                          </div>
+                          <Multiselect
+                            isObject={false}
+                            onRemove={(event) => {
+                              console.log(event);
+                            }}
+                            onSelect={(event) => {
+                              console.log(event);
+                            }}
+                            options={IDLEMESSAGES}
+                            placeholder="Select Idle Messages"
+                            className="text-sm rounded-lg block w-full my-2 bg-white dark:bg-black border-none"
+                          />
+                        </div>
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <MdLineStyle className="w-7 h-6 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                Max Idle Messages
+                              </span>
+                              <span className="text-xs">
+                                Maximum number of times idle messages can be
+                                spoken during the call.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <CFormRange
+                              min={1}
+                              max={10}
+                              step={1}
+                              value={maxIdleMessages}
+                              defaultValue={maxIdleMessages}
+                              onChange={(e) =>
+                                setMaxIdleMessages(e.target.value)
+                              }
+                              class="w-full h-1"
+                            />
+                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                              {maxIdleMessages}
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <div className=" flex justify-between items-center py-3">
+                          <div className="flex justify-start items-center">
+                            <GiSandsOfTime className="w-7 h-6 mr-3" />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm capitalize">
+                                Idle Timeout
+                              </span>
+                              <span className="text-xs">
+                                Timeout in seconds before an idle message is
+                                spoken.
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <CFormRange
+                              min={5}
+                              max={10}
+                              step={0.1}
+                              value={idleTimeout}
+                              defaultValue={idleTimeout}
+                              onChange={(e) => setIdleTimeout(e.target.value)}
+                              class="w-full h-1"
+                            />
+                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                              {idleTimeout}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CCardBody>
+                  </CCard>
                 </CTabPane>
               )}
               {activeKey == "analysis" && (
@@ -954,7 +1467,137 @@ const Assistants = () => {
                   aria-labelledby="analysis-tab"
                   visible={activeKey === "analysis"}
                 >
-                  analysis tab content
+                  <CCard>
+                    <CCardBody className="bg-background/80">
+                      <h1 className="font-extrabold">Summary</h1>
+                      <p>
+                        This is the prompt that's used to summarize the call.
+                        The output is stored in call.analysis.summary. You can
+                        also find the summary in the Call Logs Page.
+                      </p>
+                      <div className="rounded-xl p-3 bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow border mt-3">
+                        <div className="flex justify-start items-center">
+                          <div className="w-full">
+                            <div>
+                              <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                                Prompt
+                              </label>
+                              <textarea
+                                rows="6"
+                                class="text-sm rounded-lg block w-full p-2.5"
+                                placeholder="You are an expert note taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable."
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CCardBody>
+                  </CCard>
+                  <CCard className="mt-5">
+                    <CCardBody className="bg-background/80">
+                      <h1 className="font-extrabold">Success Evaluation</h1>
+                      <p>
+                        Evaluate if your call was successful. You can use Rubric
+                        standalone or in combination with Success Evaluation
+                        Prompt. If both are provided, they are concatenated into
+                        appropriate instructions.
+                      </p>
+                      <div className="rounded-xl p-3 bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow border mt-3">
+                        <div className="flex justify-start items-center">
+                          <div className="w-full">
+                            <div>
+                              <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                                Prompt
+                              </label>
+                              <p>
+                                This is the prompt that's used to evaluate if
+                                the call was successful.
+                              </p>
+                              <textarea
+                                rows="6"
+                                class="text-sm rounded-lg block w-full p-2.5"
+                                placeholder="You are an expert note taker. You will be given a transcript of a call and the system prompt of the AI participant. Determine if the call was successful based on the objectives inferred from the system prompt"
+                              ></textarea>
+                            </div>
+                            <hr />
+                            <div className="mt-3">
+                              <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                                Success Evaluation Rubric
+                              </label>
+                              <div className="text-xs mb-1">
+                                This enforces the rubric of the evaluation upon
+                                the Success Evaluation.
+                              </div>
+                              <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                                <option>
+                                  Select Success Evaluation Rubric
+                                </option>
+                                <option value="1">
+                                  Descriptive Sale | A sale of excellent, good,
+                                  fair, poor.
+                                </option>
+                                <option value="2">
+                                  Checklist | A checklist of criteria and their
+                                  status.
+                                </option>
+                              </CFormSelect>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CCardBody>
+                  </CCard>
+                  <CCard className="mt-5">
+                    <CCardBody className="bg-background/80">
+                      <h1 className="font-extrabold">Structured Data</h1>
+                      <p>
+                        Extract structured data from call conversation. You can
+                        use Data Schema standalone or in combination with
+                        Structured Data Prompt. If both are provided, they are
+                        concatenated into appropriate instructions.
+                      </p>
+                      <div className="rounded-xl p-3 bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow border mt-3">
+                        <div className="flex justify-start items-center">
+                          <div className="w-full">
+                            <div>
+                              <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                                Prompt
+                              </label>
+                              <p>
+                                This is the prompt that's used to extract
+                                structured data from the call.
+                              </p>
+                              <textarea
+                                rows="6"
+                                class="text-sm rounded-lg block w-full p-2.5"
+                                placeholder="You will be given a transcript of a call and the system prompt of the AI participant. Extract.."
+                              ></textarea>
+                            </div>
+                            <hr />
+                            {/* <div className="mt-3">
+                              <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                                Data Scheme
+                              </label>
+                              <div className="text-xs mb-1">
+                              This defines the structure of the data to be extracted. Add various properties you want in the Structured Data Output.
+                              </div>
+                              <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                                <option>
+                                  Select Success Evaluation Rubric
+                                </option>
+                                <option value="1">
+                                Descriptive Sale | A sale of excellent, good, fair, poor.
+                                </option>
+                                <option value="2">
+                                Checklist | A checklist of criteria and their status.
+                                </option>
+                              </CFormSelect>
+                            </div> */}
+                          </div>
+                        </div>
+                      </div>
+                    </CCardBody>
+                  </CCard>
                 </CTabPane>
               )}
             </CTabContent>
