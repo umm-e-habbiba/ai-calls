@@ -15,8 +15,8 @@ root.render(
   <Suspense fallback={<SuspenseContent />}>
     <Provider store={store}>
       <ToastContainer
-        position="bottom-center"
-        autoClose={500}
+        position="top-right"
+        autoClose={1500}
         hideProgressBar
         newestOnTop={false}
         closeOnClick

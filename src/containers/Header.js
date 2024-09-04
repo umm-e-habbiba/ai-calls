@@ -31,7 +31,7 @@ function Header() {
     }
     console.log("page title", pageTitle);
     // 👆 false parameter is required for react project
-  }, []);
+  }, [currentTheme, pageTitle]);
 
   // Opening right sidebar for notification
   const openNotification = () => {

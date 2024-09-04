@@ -2,15 +2,18 @@
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js"
+    "./node_modules/react-tailwindcss-datepicker/dist/index.esm.js",
   ],
   darkMode: ["class", '[data-theme="dark"]'],
   theme: {
-    extend: {},
+    extend: {
+      spacing: {
+        128: "82rem",
+      },
+    },
   },
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   daisyui: {
     themes: ["light", "dark"],
   },
-
-}
+};
