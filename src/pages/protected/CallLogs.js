@@ -3,13 +3,20 @@ import { TbZoomExclamation } from "react-icons/tb";
 import { IoCopy } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { DATA } from "../../components/Call Logs/CallLogData";
+import { useDispatch } from "react-redux";
+import { setPageTitle } from "../../features/common/headerSlice";
 
 const CallLogs = () => {
   const [isCallLogs, setIsCallLogs] = useState(true);
   const [data, setData] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setData(DATA);
+  }, []);
+
+  useEffect(() => {
+    dispatch(setPageTitle({ title: "Call Logs" }));
   }, []);
 
   const handleCopyButton = (callID) => {

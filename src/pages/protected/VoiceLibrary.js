@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RiVoiceprintLine } from "react-icons/ri";
 import ControlDiv from "../../components/Voice Library Components/ControlDiv";
 import PrivateVoicesAccordion from "../../components/Voice Library Components/PrivateVoicesAccordion";
@@ -13,7 +13,8 @@ import {
 import PrivateVoices from "../../components/Voice Library Components/PrivateVoices";
 import PublicVoices from "../../components/Voice Library Components/PublicVoices";
 import { InfinitySpin } from "react-loader-spinner";
-
+import { setPageTitle } from "../../features/common/headerSlice";
+import { useDispatch } from "react-redux";
 const VoiceLibrary = () => {
   const publicVoices = [
     "Public Voice 1",
@@ -42,6 +43,10 @@ const VoiceLibrary = () => {
 
   const [privateButtonClicked, setPrivateButtonClicked] = useState(false);
   const [publicButtonClicked, setPublicButtonClicked] = useState(false);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(setPageTitle({ title: "Voice Library" }));
+  }, []);
 
   return (
     <>

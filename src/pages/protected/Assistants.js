@@ -50,6 +50,7 @@ import {
   CTooltip,
 } from "@coreui/react";
 import Multiselect from "multiselect-react-dropdown";
+import { setPageTitle } from "../../features/common/headerSlice";
 const Assistants = () => {
   const dispatch = useDispatch();
   const [noAssistant, setNoAssistant] = useState(false);
@@ -99,6 +100,10 @@ const Assistants = () => {
     "IS there anything else you can help with",
     "Feel free to ask any questions.",
   ];
+
+  useEffect(() => {
+    dispatch(setPageTitle({ title: "Assistants" }));
+  }, []);
 
   useEffect(() => {
     setCurrentAssistant(

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { MODAL_BODY_TYPES } from "../../utils/globalConstantUtil";
 import { openModal } from "../../features/common/modalSlice";
@@ -6,9 +6,14 @@ import { openModal } from "../../features/common/modalSlice";
 import { FaMobileRetro } from "react-icons/fa6";
 import { LuAlertTriangle } from "react-icons/lu";
 import PlusICon from "@heroicons/react/24/outline/PlusCircleIcon";
+import { setPageTitle } from "../../features/common/headerSlice";
 
 const PhoneNumbers = () => {
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setPageTitle({ title: "Phone Numbers" }));
+  }, []);
 
   const openImportNumberModal = () => {
     dispatch(

@@ -1,25 +1,15 @@
-
-
-function AmountStats({}){
-    return(
-        <div className="stats bg-base-100 shadow">
-            <div className="stat">
-                <div className="stat-title">Amount to be Collected</div>
-                <div className="stat-value">$25,600</div>
-                <div className="stat-actions">
-                    <button className="btn btn-xs">View Users</button> 
-                </div>
-            </div>
-            
-            <div className="stat">
-                <div className="stat-title">Cash in hand</div>
-                <div className="stat-value">$5,600</div>
-                <div className="stat-actions">
-                    <button className="btn btn-xs">View Members</button> 
-                </div>
-            </div>
+function AmountStats({}) {
+  return (
+    <div className="stats bg-base-100 shadow">
+      <div className="stat">
+        <div className="stat-title">Cost per Provider</div>
+        <div className="stat-value">$0.14</div>
+        <div className={"stat-desc font-bold text-rose-500 dark:text-red-400"}>
+          ↙ -95.92%
         </div>
-    )
+      </div>
+    </div>
+  );
 }
 
-export default AmountStats
+export default AmountStats;
