@@ -1,20 +1,30 @@
 import { useEffect } from "react";
 import { MODAL_BODY_TYPES } from "../utils/globalConstantUtil";
 import { useSelector, useDispatch } from "react-redux";
-import { closeModal } from "../features/common/modalSlice";
+import { closeModal, setShowDetail } from "../features/common/modalSlice";
 import AddLeadModalBody from "../features/leads/components/AddLeadModalBody";
 import ConfirmationModalBody from "../features/common/components/ConfirmationModalBody";
 import ImportNumber from "../features/common/components/ImportNumber";
 
 function ModalLayout() {
-  const { isOpen, bodyType, size, extraObject, title } = useSelector(
-    (state) => state.modal
-  );
+  const {
+    isOpen,
+    bodyType,
+    size,
+    extraObject,
+    title,
+    showDetail,
+    setShowDetail,
+  } = useSelector((state) => state.modal);
   const dispatch = useDispatch();
 
   const close = (e) => {
     dispatch(closeModal(e));
   };
+
+  // const showHide = (e) => {
+  //   dispatch(setShowDetail(e));
+  // };
 
   return (
     <>
@@ -47,7 +57,12 @@ function ModalLayout() {
                 />
               ),
               [MODAL_BODY_TYPES.IMPORT_NUMBER]: (
-                <ImportNumber extraObject={extraObject} closeModal={close} />
+                <ImportNumber
+                  extraObject={extraObject}
+                  closeModal={close}
+                  showDetail={showDetail}
+                  setShowDetail={setShowDetail}
+                />
               ),
               [MODAL_BODY_TYPES.DEFAULT]: <div></div>,
             }[bodyType]

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import LandingIntro from './LandingIntro';
-import ErrorText from '../../components/Typography/ErrorText';
-import InputText from '../../components/Input/InputText';
-import { API_URL } from '../../store';
-import { toast } from 'react-toastify';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import LandingIntro from "./LandingIntro";
+import ErrorText from "../../components/Typography/ErrorText";
+import InputText from "../../components/Input/InputText";
+import { API_URL } from "../../store";
+import { toast } from "react-toastify";
 
 function Register() {
   const INITIAL_REGISTER_OBJ = {
@@ -19,14 +19,13 @@ function Register() {
   const [errorMessage, setErrorMessage] = useState("");
   const [registerObj, setRegisterObj] = useState(INITIAL_REGISTER_OBJ);
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const submitForm = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
     console.log("Submitting form with data:", registerObj);
-
 
     if (registerObj.firstName.trim() === "")
       return setErrorMessage("First Name is required!");
@@ -59,12 +58,14 @@ function Register() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed. Please try again.");
+        throw new Error(
+          data.message || "Registration failed. Please try again."
+        );
       }
       toast.success("Registration successful! Redirecting...");
 
       setLoading(false);
-      navigate("/login"); 
+      navigate("/login");
     } catch (error) {
       setLoading(false);
       setErrorMessage(error.message || "An error occurred. Please try again.");
@@ -78,13 +79,16 @@ function Register() {
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center">
-      <div className="card mx-auto w-full max-w-5xl shadow-xl">
-        <div className="grid md:grid-cols-2 grid-cols-1 bg-base-100 rounded-xl">
-          <div className="">
+      <div className="card mx-auto w-1/3 max-w-5xl shadow-xl">
+        {/* <div className="grid md:grid-cols-2 grid-cols-1 bg-base-100 rounded-xl"> */}
+        <div className="bg-base-100 rounded-xl">
+          {/* <div className="">
             <LandingIntro />
-          </div>
+          </div> */}
           <div className="py-24 px-10">
-            <h2 className="text-2xl font-semibold mb-2 text-center">Register</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-center">
+              Register
+            </h2>
             <form onSubmit={submitForm}>
               <div className="mb-4">
                 <InputText

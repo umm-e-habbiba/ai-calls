@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import InputText from "../../../components/Input/InputText";
 import ErrorText from "../../../components/Typography/ErrorText";
@@ -19,13 +19,17 @@ const INITIAL_VONAGE_OBJ = {
   label: "",
 };
 
-function ImportNumber({ closeModal }) {
+function ImportNumber({ closeModal, showDetail, setShowDetail }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [twilioObj, setTwilioObj] = useState(INITIAL_TWILIO_OBJ);
   const [vonageObj, setVonageObj] = useState(INITIAL_VONAGE_OBJ);
   const [activeKey, setActiveKey] = useState("twilio");
+
+  const handleChange = useCallback(() => {
+    setShowDetail(!showDetail);
+  }, [setShowDetail]);
 
   const importFromTwilio = () => {
     if (twilioObj.account_sid.trim() === "")
@@ -49,6 +53,8 @@ function ImportNumber({ closeModal }) {
         showNotification({ message: "Phone number imported", status: 1 })
       );
       closeModal();
+      // setShowDetail();
+      handleChange();
     }
   };
   const importFromVonage = () => {
