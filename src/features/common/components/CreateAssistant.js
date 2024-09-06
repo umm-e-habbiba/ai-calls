@@ -231,7 +231,7 @@ function CreateAssistant() {
     const options = {
       method: "POST",
       headers: {
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJZCI6IjFmOWY4ODg3LWIzNmQtNDQ4Ny1hMjQyLTM2ZDA2OTZhZWVjZCIsImlhdCI6MTcyNTYzNjEzMywiZXhwIjoxNzI1NjM5MTMzfQ.IQ6zpgOc_O-efJMUBYbQfAE_ojKfqotunBZSbmTAlIk`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: raw,
