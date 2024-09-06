@@ -62,6 +62,7 @@ const statsData = [
 ChartJS.register(ArcElement, Tooltip, Legend, Tooltip, Filler, Legend);
 function Dashboard() {
   const dispatch = useDispatch();
+  const date = new Date();
   const [token, setToken] = useState(localStorage.getItem("token"));
   const updateDashboardPeriod = (newRange) => {
     // Dashboard range changed, write code to refresh your values
@@ -150,8 +151,10 @@ function Dashboard() {
   }, []);
 
   const analytics = () => {
+    const startDate = new Date(date.setMonth(date.getMonth() - 1));
+    const endDate = new Date();
     const myHeaders = new Headers();
-    myHeaders.append("Authorization", `Bearer ${token}`);
+    myHeaders.append("Authorization", `Bearer ${process.env.REACT_APP_TOKEN}`);
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
@@ -200,8 +203,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -216,8 +219,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -232,8 +235,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -249,8 +252,8 @@ function Dashboard() {
           ],
           groupBy: ["type"],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -266,8 +269,8 @@ function Dashboard() {
           ],
           groupBy: ["endedReason"],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -283,8 +286,8 @@ function Dashboard() {
           ],
           groupBy: ["assistantId"],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -300,8 +303,8 @@ function Dashboard() {
           ],
           groupBy: ["assistantId"],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -316,8 +319,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
@@ -332,8 +335,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: "2024-08-07T11:21:46.677Z",
-            end: "2024-09-06T11:21:46.677Z",
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
             step: "day",
             timezone: "UTC",
           },
