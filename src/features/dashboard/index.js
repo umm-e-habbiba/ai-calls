@@ -26,8 +26,11 @@ import {
   MdOutlinePhoneInTalk,
 } from "react-icons/md";
 import { FaUsersBetweenLines } from "react-icons/fa6";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CRow, CCol } from "@coreui/react";
+import { VAPI_API_URL } from "../../store";
+import { queries } from "@testing-library/react";
+import { jwtDecode } from "jwt-decode";
 
 const statsData = [
   {
@@ -60,7 +63,7 @@ const statsData = [
 ChartJS.register(ArcElement, Tooltip, Legend, Tooltip, Filler, Legend);
 function Dashboard() {
   const dispatch = useDispatch();
-
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const updateDashboardPeriod = (newRange) => {
     // Dashboard range changed, write code to refresh your values
     dispatch(
@@ -137,6 +140,223 @@ function Dashboard() {
         borderWidth: 1,
       },
     ],
+  };
+
+  useEffect(() => {
+    const getToken = localStorage.getItem("token");
+    if (getToken) {
+      setToken(getToken);
+      analytics();
+    }
+  }, []);
+
+  const analytics = () => {
+    const myHeaders = new Headers();
+    const decodedToken = jwtDecode(
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJZCI6IjFmOWY4ODg3LWIzNmQtNDQ4Ny1hMjQyLTM2ZDA2OTZhZWVjZCIsImlhdCI6MTcyNTYzNjEzMywiZXhwIjoxNzI1NjM5MTMzfQ.IQ6zpgOc_O-efJMUBYbQfAE_ojKfqotunBZSbmTAlIk"
+    );
+    console.log("decode token", decodedToken);
+    // myHeaders.append("Authorization", `Bearer ${decodedToken}`);
+    // myHeaders.append("Content-Type", "application/json");
+
+    // const raw = JSON.stringify({
+    //   // "queries": [
+    //   //   {
+    //   //     "table": "call",
+    //   //     "groupBy": [
+    //   //       "type"
+    //   //     ],
+    //   //     "name": "<string>",
+    //   //     "timeRange": {
+    //   //       "step": "minute",
+    //   //       "start": "2023-11-07T05:31:56Z",
+    //   //       "end": "2023-11-07T05:31:56Z",
+    //   //       "timezone": "<string>"
+    //   //     },
+    //   //     "operations": [
+    //   //       {
+    //   //         "operation": "sum",
+    //   //         "column": "id",
+    //   //         "alias": "<string>"
+    //   //       }
+    //   //     ]
+    //   //   }
+    //   // ]
+    //   queries: [
+    //     {
+    //       name: "LLM, STT, TTS, VAPI Costs",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "sum",
+    //           column: "costBreakdown.llm",
+    //         },
+    //         {
+    //           operation: "sum",
+    //           column: "costBreakdown.stt",
+    //         },
+    //         {
+    //           operation: "sum",
+    //           column: "costBreakdown.tts",
+    //         },
+    //         {
+    //           operation: "sum",
+    //           column: "costBreakdown.vapi",
+    //         },
+    //       ],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Total Call Duration",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "sum",
+    //           column: "duration",
+    //         },
+    //       ],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Average Call Cost",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "avg",
+    //           column: "cost",
+    //         },
+    //       ],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Number of Calls by Type",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "count",
+    //           column: "id",
+    //         },
+    //       ],
+    //       groupBy: ["type"],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Number of Failed Calls",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "count",
+    //           column: "id",
+    //         },
+    //       ],
+    //       groupBy: ["endedReason"],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Number of Calls by Assistant",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "count",
+    //           column: "id",
+    //         },
+    //       ],
+    //       groupBy: ["assistantId"],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Average Call Duration by Assistant",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "avg",
+    //           column: "duration",
+    //         },
+    //       ],
+    //       groupBy: ["assistantId"],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Total Minutes",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "sum",
+    //           column: "duration",
+    //         },
+    //       ],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //     {
+    //       name: "Total Spent",
+    //       table: "call",
+    //       operations: [
+    //         {
+    //           operation: "sum",
+    //           column: "cost",
+    //         },
+    //       ],
+    //       timeRange: {
+    //         start: "2024-08-07T11:21:46.677Z",
+    //         end: "2024-09-06T11:21:46.677Z",
+    //         step: "day",
+    //         timezone: "UTC",
+    //       },
+    //     },
+    //   ],
+    // });
+
+    // const requestOptions = {
+    //   method: "POST",
+    //   headers: myHeaders,
+    //   body: raw,
+    //   redirect: "follow",
+    // };
+
+    // fetch(VAPI_API_URL + "analytics", requestOptions)
+    //   .then((response) => response.json())
+    //   .then((result) => console.log(result))
+    //   .catch((error) => console.error(error));
   };
 
   return (
