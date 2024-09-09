@@ -134,16 +134,16 @@ const Assistants = () => {
         </div>
       )}
       {!noAssistant && (
-        <div className="flex justify-start h-full">
+        <div className="flex flex-col sm:flex-row sm:justify-start sm:h-full">
           <div
             data-testid="assistant-menu"
-            className="border-r border-border hide-scrollbar h-[200px] sm:h-full w-full sm:max-w-[320px]"
+            className="border-r border-border hide-scrollbar sm:h-full w-full sm:max-w-[320px]"
           >
-            <div className="flex p-4 sticky top-0 border-b border-border bg-foreground/5 backdrop-blur-lg">
+            <div className="flex p-4 fixed w-full z-10 sm:w-[320px] sm:border-b sm:border-border bg-foreground/5 backdrop-blur-xl sm:backdrop-blur-sm">
               <button
                 type="button"
                 onClick={() => openNotification()}
-                className="w-full  text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex justify-center items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="sm:w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex justify-center items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
                 Create Assistant
                 <PlusICon className="w-5 h-5 ml-3" />
@@ -152,7 +152,7 @@ const Assistants = () => {
             <div
               role="list"
               data-testid="assistants-list"
-              className="flex-col w-full sm:max-w-[320px] p-4 hide-scrollbar gap-y-2 hidden sm:flex"
+              className="mt-16 flex-col w-full sm:w-[320px] p-4 hide-scrollbar gap-y-2 sm:flex"
             >
               {assistants &&
                 assistants.length > 0 &&
@@ -195,7 +195,7 @@ const Assistants = () => {
                 </button>
               </div>
             </div>
-            <div className="hidden lg:flex lg:items-center flex-wrap flex-auto gap-x-4 mb-3">
+            <div className="grid grid-cols-3 sm:grid-cols-2 md:flex md:items-center md:flex-wrap sm:flex-auto sm:gap-x-4 mb-3">
               <div className="flex items-center mb-1 gap-1">
                 <div className="rounded-full w-2 h-2 bg-[#5dfeca]"></div>
                 <div className="text-xs text-text">Vapi Fixed Cost</div>
@@ -305,11 +305,11 @@ const Assistants = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-2 xl:flex-row xl:justify-between xl:items-center">
               <CNav
                 variant="tabs"
                 role="tablist"
-                className="mr-2 items-center justify-start text-muted-foreground overflow-x-auto p-1.5 gap-x-2 bg-background/80 backdrop-blur-lg border border-border rounded-xl shadow-sm shadow-black/20 xl:flex hidden w-fit"
+                className="w-full md:mr-2 flex flex-col items-start justify-center text-muted-foreground overflow-x-auto p-1.5 gap-x-2 bg-background/80 backdrop-blur-lg border border-border rounded-xl shadow-sm shadow-black/20 xl:flex-row xl:w-fit"
               >
                 <CNavItem>
                   <CNavLink
@@ -425,7 +425,11 @@ const Assistants = () => {
                 </button>
               </div>
             </div>
-            <CTabContent className="bg-gray-200 dark:bg-[#14171A] p-3 mt-3 rounded-xl border">
+            <CTabContent
+              className={`bg-gray-200 dark:bg-[#14171A] p-3 mt-3 rounded-xl w-full ${
+                activeKey === "model" ? "h-screen sm:h-auto" : "h-auto"
+              } border`}
+            >
               {activeKey == "model" && (
                 <CTabPane
                   role="tabpanel"
@@ -439,159 +443,156 @@ const Assistants = () => {
                         This section allows you to configure the model for the
                         assistant.
                       </p>
-                      <div className="rounded-xl p-3 bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow border mt-3">
-                        <div className="flex justify-start items-center">
-                          <div className="w-full mr-3">
-                            <div>
-                              <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
-                                First Message{" "}
-                                <CTooltip
-                                  content="The first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.)."
-                                  placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
-                                >
-                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
-                                </CTooltip>
-                              </label>
-                              <input
-                                type="text"
-                                id="first_name"
-                                class="text-sm rounded-lg block w-full p-2.5"
-                                placeholder=""
-                                required
-                              />
-                            </div>
-                            <div>
-                              <label
-                                for="message"
-                                class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center"
+                      <div className="flex flex-col md:flex-row md:justify-start md:items-center rounded-xl p-3 bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow border mt-3">
+                        <div className="w-full mr-3">
+                          <div>
+                            <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              First Message{" "}
+                              <CTooltip
+                                content="The first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.)."
+                                placement="top"
+                                className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
                               >
-                                System Prompt{" "}
-                                <CTooltip
-                                  content="The system prompt can be used to configure the context, role, personality, instructions and so on for the assistant."
-                                  placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
-                                >
-                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
-                                </CTooltip>
-                              </label>
-                              <textarea
-                                id="message"
-                                rows="10"
-                                class="text-sm rounded-lg block w-full p-2.5"
-                                placeholder="Add your prompt here..."
-                              ></textarea>
-                            </div>
-                          </div>
-                          <div className="hide-scrollbar h-[200px] sm:h-full w-full sm:max-w-[240px]">
-                            <div>
-                              <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
-                                Provider
-                              </label>
-                              <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
-                                <option>Open this select menu</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3" disabled>
-                                  Three
-                                </option>
-                              </CFormSelect>
-                            </div>
-                            <div>
-                              <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
-                                Model{" "}
-                                <CTooltip
-                                  content="We benchmark and rank ~20 models and instances across Azure and OpenAI for GPT 3.5 picking fastest at any one moment."
-                                  placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
-                                >
-                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
-                                </CTooltip>
-                              </label>
-                              <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
-                                <option>Open this select menu</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3" disabled>
-                                  Three
-                                </option>
-                              </CFormSelect>
-                            </div>
-                            <div>
-                              <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                                Knowledge base
-                              </label>
-                              <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
-                                <option>Open this select menu</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3" disabled>
-                                  Three
-                                </option>
-                              </CFormSelect>
-                            </div>
-                            <div>
-                              <div className="flex justify-between items-center">
-                                <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
-                                  Temperature{" "}
-                                  <CTooltip
-                                    content="The temperature is used to control the randomness of the output. When you set it higher, you'll get more random outputs. When you set it lower, towards 0, the values are more deterministic."
-                                    placement="top"
-                                    className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
-                                  >
-                                    <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
-                                  </CTooltip>
-                                </label>
-                                <span className="text-sm rounded-lg block p-2.5">
-                                  {temperature}
-                                </span>
-                              </div>
-                              <CFormRange
-                                min={1}
-                                max={2}
-                                step={0.1}
-                                value={temperature}
-                                defaultValue={temperature}
-                                onChange={(e) => setTemperature(e.target.value)}
-                                class="w-full h-1"
-                              />
-                            </div>
-                            <div>
-                              <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
-                                Max Tokens{" "}
-                                <CTooltip
-                                  content="This is the max number of tokens that the assistant will be allowed to generate in each turn of the conversation."
-                                  placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
-                                >
-                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
-                                </CTooltip>
-                              </label>
-                              <CFormInput
-                                class="text-sm rounded-lg block w-full p-2.5 mb-2"
-                                type="number"
-                              />
-                            </div>
-
-                            <label class="flex justify-between items-center cursor-pointer">
-                              <span class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
-                                Direct Emotion{" "}
-                                <CTooltip
-                                  content="Enable this property to detect user's emotion such as anger, joy etc. and feed it as an additional context to the model"
-                                  placement="top"
-                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
-                                >
-                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
-                                </CTooltip>
-                              </span>
-                              <input
-                                type="checkbox"
-                                value=""
-                                class="sr-only peer"
-                              />
-                              <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
+                              </CTooltip>
                             </label>
+                            <input
+                              type="text"
+                              id="first_name"
+                              class="text-sm rounded-lg block w-full p-2.5"
+                              placeholder=""
+                              required
+                            />
                           </div>
+                          <div>
+                            <label
+                              for="message"
+                              class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center"
+                            >
+                              System Prompt{" "}
+                              <CTooltip
+                                content="The system prompt can be used to configure the context, role, personality, instructions and so on for the assistant."
+                                placement="top"
+                                className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
+                              >
+                                <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
+                              </CTooltip>
+                            </label>
+                            <textarea
+                              id="message"
+                              rows="10"
+                              class="text-sm rounded-lg block w-full p-2.5"
+                              placeholder="Add your prompt here..."
+                            ></textarea>
+                          </div>
+                        </div>
+                        <div className="hide-scrollbar h-[200px] sm:h-full w-full sm:max-w-[240px]">
+                          <div>
+                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              Provider
+                            </label>
+                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                              <option>Open this select menu</option>
+                              <option value="1">One</option>
+                              <option value="2">Two</option>
+                              <option value="3" disabled>
+                                Three
+                              </option>
+                            </CFormSelect>
+                          </div>
+                          <div>
+                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              Model{" "}
+                              <CTooltip
+                                content="We benchmark and rank ~20 models and instances across Azure and OpenAI for GPT 3.5 picking fastest at any one moment."
+                                placement="top"
+                                className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
+                              >
+                                <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
+                              </CTooltip>
+                            </label>
+                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                              <option>Open this select menu</option>
+                              <option value="1">One</option>
+                              <option value="2">Two</option>
+                              <option value="3" disabled>
+                                Three
+                              </option>
+                            </CFormSelect>
+                          </div>
+                          <div>
+                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                              Knowledge base
+                            </label>
+                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                              <option>Open this select menu</option>
+                              <option value="1">One</option>
+                              <option value="2">Two</option>
+                              <option value="3" disabled>
+                                Three
+                              </option>
+                            </CFormSelect>
+                          </div>
+                          <div>
+                            <div className="flex justify-between items-center">
+                              <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                                Temperature{" "}
+                                <CTooltip
+                                  content="The temperature is used to control the randomness of the output. When you set it higher, you'll get more random outputs. When you set it lower, towards 0, the values are more deterministic."
+                                  placement="top"
+                                  className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
+                                >
+                                  <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
+                                </CTooltip>
+                              </label>
+                              <span className="text-sm rounded-lg block p-2.5">
+                                {temperature}
+                              </span>
+                            </div>
+                            <CFormRange
+                              min={1}
+                              max={2}
+                              step={0.1}
+                              value={temperature}
+                              defaultValue={temperature}
+                              onChange={(e) => setTemperature(e.target.value)}
+                              class="w-full h-1"
+                            />
+                          </div>
+                          <div>
+                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              Max Tokens{" "}
+                              <CTooltip
+                                content="This is the max number of tokens that the assistant will be allowed to generate in each turn of the conversation."
+                                placement="top"
+                                className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
+                              >
+                                <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
+                              </CTooltip>
+                            </label>
+                            <CFormInput
+                              class="text-sm rounded-lg block w-full p-2.5 mb-2"
+                              type="number"
+                            />
+                          </div>
+                          <label class="flex justify-between items-center cursor-pointer">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              Direct Emotion{" "}
+                              <CTooltip
+                                content="Enable this property to detect user's emotion such as anger, joy etc. and feed it as an additional context to the model"
+                                placement="top"
+                                className="bg-black w-[200px] rounded-xl p-2 text-wrap text-xs"
+                              >
+                                <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
+                              </CTooltip>
+                            </span>
+                            <input
+                              type="checkbox"
+                              value=""
+                              class="sr-only peer"
+                            />
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                          </label>
                         </div>
                       </div>
                     </CCardBody>

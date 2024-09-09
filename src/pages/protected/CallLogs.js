@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { DATA } from "../../components/Call Logs/CallLogData";
 import { useDispatch } from "react-redux";
 import { setPageTitle } from "../../features/common/headerSlice";
+import CallLogsNoResult from "../../components/Call Logs/CallLogsNoResult";
 
 const CallLogs = () => {
   const [isCallLogs, setIsCallLogs] = useState(false);
@@ -12,6 +13,9 @@ const CallLogs = () => {
 
   useEffect(() => {
     setData(DATA);
+    if (data) {
+      setIsCallLogs(true);
+    }
   }, []);
 
   useEffect(() => {
