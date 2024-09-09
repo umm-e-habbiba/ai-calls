@@ -2,18 +2,21 @@ import React, { useEffect, useState } from "react";
 import { IoCopy } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { DATA } from "../../components/Call Logs/CallLogData";
-import CallLogsNoResult from "../../components/Call Logs/CallLogsNoResult";
+import { useDispatch } from "react-redux";
+import { setPageTitle } from "../../features/common/headerSlice";
 
 const CallLogs = () => {
   const [isCallLogs, setIsCallLogs] = useState(false);
   const [data, setData] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (DATA) {
-      setData(DATA);
-      setIsCallLogs(true);
-    }
-  }, [data, isCallLogs]);
+    setData(DATA);
+  }, []);
+
+  useEffect(() => {
+    dispatch(setPageTitle({ title: "Call Logs" }));
+  }, []);
 
   const handleCopyButton = (callID) => {
     let isCopy = navigator.clipboard.writeText(callID);
