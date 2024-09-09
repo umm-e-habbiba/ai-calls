@@ -64,8 +64,15 @@ function Dashboard() {
   const dispatch = useDispatch();
   const date = new Date();
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [startDate, setStartDate] = useState(new Date().toISOString());
+  const [endDate, setEndDate] = useState(new Date().toISOString());
+
   const updateDashboardPeriod = (newRange) => {
     // Dashboard range changed, write code to refresh your values
+    console.log("new start date", new Date(newRange.startDate).toISOString());
+    setStartDate(new Date(newRange.startDate).toISOString());
+    setEndDate(new Date(newRange.endDate).toISOString());
+
     dispatch(
       showNotification({
         message: `Period updated to ${newRange.startDate} to ${newRange.endDate}`,
@@ -150,36 +157,16 @@ function Dashboard() {
     }
   }, []);
 
+  useEffect(() => {
+    analytics();
+  }, [startDate, endDate]);
+
   const analytics = () => {
-    const startDate = new Date(date.setMonth(date.getMonth() - 1));
-    const endDate = new Date();
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${process.env.REACT_APP_TOKEN}`);
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
-      // "queries": [
-      //   {
-      //     "table": "call",
-      //     "groupBy": [
-      //       "type"
-      //     ],
-      //     "name": "<string>",
-      //     "timeRange": {
-      //       "step": "minute",
-      //       "start": "2023-11-07T05:31:56Z",
-      //       "end": "2023-11-07T05:31:56Z",
-      //       "timezone": "<string>"
-      //     },
-      //     "operations": [
-      //       {
-      //         "operation": "sum",
-      //         "column": "id",
-      //         "alias": "<string>"
-      //       }
-      //     ]
-      //   }
-      // ]
       queries: [
         {
           name: "LLM, STT, TTS, VAPI Costs",
@@ -203,8 +190,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -219,8 +206,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -235,8 +222,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -252,8 +239,8 @@ function Dashboard() {
           ],
           groupBy: ["type"],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -269,8 +256,8 @@ function Dashboard() {
           ],
           groupBy: ["endedReason"],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -286,8 +273,8 @@ function Dashboard() {
           ],
           groupBy: ["assistantId"],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -303,8 +290,8 @@ function Dashboard() {
           ],
           groupBy: ["assistantId"],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -319,8 +306,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
@@ -335,8 +322,8 @@ function Dashboard() {
             },
           ],
           timeRange: {
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
+            start: startDate,
+            end: endDate,
             step: "day",
             timezone: "UTC",
           },
