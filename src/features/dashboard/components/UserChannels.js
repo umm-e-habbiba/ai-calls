@@ -1,17 +1,11 @@
+import { useEffect } from "react";
 import TitleCard from "../../../components/Cards/TitleCard";
 
-const userSourceData = [
-  { name: "Ark Team", count: "26", duration: 1.05 },
-  { name: "Mary", count: "21", duration: 5.48 },
-  { name: "Ark Team", count: "26", duration: 1.05 },
-  { name: "Mary", count: "21", duration: 5.48 },
-  { name: "Ark Team", count: "26", duration: 1.05 },
-  { name: "Mary", count: "21", duration: 5.48 },
-  { name: "Ark Team", count: "26", duration: 1.05 },
-  { name: "Mary", count: "21", duration: 5.48 },
-];
+function UserChannels({ data }) {
+  useEffect(() => {
+    console.log("data", data);
+  }, []);
 
-function UserChannels() {
   return (
     <TitleCard topMargin="mt-0">
       {/** Table Data */}
@@ -25,19 +19,33 @@ function UserChannels() {
             </tr>
           </thead>
           <tbody>
-            {userSourceData.map((u, k) => {
-              return (
-                <tr key={k}>
-                  <td>{u.name}</td>
-                  <td>{u.count}</td>
-                  {/* <td>{`${u.duration}%`}</td> */}
-                  <td>
-                    {u.duration}
-                    <span className="opacity-50"> min</span>
-                  </td>
-                </tr>
-              );
-            })}
+            {data && data.length > 0 ? (
+              data.map((u, k) => {
+                return (
+                  <tr key={k}>
+                    {/* <td>{getAssistantName(u.assistantId)}</td> */}
+                    <td>{u.assistantId}</td>
+                    <td>
+                      remaining
+                      {/* {
+                        calls.filter((x) => x.assistantId == u.assistantId)[0]
+                          .countId
+                      } */}
+                    </td>
+                    <td>
+                      {parseInt(u.avgDuration)}
+                      <span className="opacity-50"> min</span>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={3} className="text-center">
+                  No Call aggregated by assistants.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

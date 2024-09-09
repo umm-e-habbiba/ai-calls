@@ -10,16 +10,17 @@ import { setPageTitle } from "../../features/common/headerSlice";
 import { CCard, CCardBody, CFormSelect } from "@coreui/react";
 import { IoCopy } from "react-icons/io5";
 import { toast } from "react-toastify";
+import { VAPI_API_URL } from "../../store";
 
 const PhoneNumbers = () => {
   const dispatch = useDispatch();
   // const [showImport, setShowImport] = useState(true);
-  const [showPhoneNoDetail, setShowPhoneNoDetail] = useState(false);
+  const [showPhoneNoDetail, setShowPhoneNoDetail] = useState(true);
   const [currentPhoneNumber, setCurrentPhoneNumber] = useState({
     id: "1",
     number: "+1234",
   });
-  const [phoneNumberId, setPhoneNumberId] = useState("1");
+  const [phoneNumberId, setPhoneNumberId] = useState("");
   const [phoneNumbers, setPhoneNumbers] = useState([
     {
       id: "1",
@@ -39,6 +40,7 @@ const PhoneNumbers = () => {
 
   useEffect(() => {
     dispatch(setPageTitle({ title: "Phone Numbers" }));
+    getPhoneNumbers();
   }, []);
 
   useEffect(() => {
@@ -60,6 +62,26 @@ const PhoneNumbers = () => {
     if (isCopy) {
       toast.success(`Copied to Clipboard`);
     }
+  };
+  const getPhoneNumbers = () => {
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${process.env.REACT_APP_TOKEN}`);
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(VAPI_API_URL + "phone-number", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("phone numbers", result);
+        setPhoneNumbers(result);
+        setCurrentPhoneNumber(result[0]);
+        setPhoneNumberId(result[0].id);
+      })
+      .catch((error) => console.error(error));
   };
   return (
     <>
@@ -170,11 +192,11 @@ const PhoneNumbers = () => {
                 phoneNumbers.map((no, index) => (
                   <div
                     className={`group flex flex-col p-2 rounded-lg w-full border border-transparent hover:bg-background/50 cursor-pointer transition-all duration-150 ease-in-out ${
-                      currentPhoneNumber.number == no.number
+                      currentPhoneNumber?.number == no.number
                         ? "bg-primary/10"
                         : ""
                     }`}
-                    onClick={() => setPhoneNumberId(index + 1)}
+                    onClick={() => setPhoneNumberId(no.id)}
                   >
                     <div className="flex justify-between items-center  transition-all duration-150 ease-in-out">
                       <div className="flex flex-col justify-between items-start">
@@ -193,7 +215,7 @@ const PhoneNumbers = () => {
           <div className="p-4">
             <div className="flex justify-start flex-col items-start mb-3">
               <div className="ellipsis-text font-bold text-xl mb-1">
-                {currentPhoneNumber.number}
+                {currentPhoneNumber?.number}
               </div>
               <div className="font-bold text-xs">Twilio Number</div>
               <div className="text-left my-2">
@@ -237,7 +259,7 @@ const PhoneNumbers = () => {
                         class="text-sm rounded-lg block w-full p-2.5 mb-3"
                         placeholder=""
                         required
-                        value={currentPhoneNumber.number}
+                        value={currentPhoneNumber?.number}
                       />
                     </div>
                     <hr />

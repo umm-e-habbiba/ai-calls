@@ -29,35 +29,6 @@ import { FaUsersBetweenLines } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import { CRow, CCol } from "@coreui/react";
 import { VAPI_API_URL } from "../../store";
-import { queries } from "@testing-library/react";
-
-const statsData = [
-  {
-    title: "Total Call Minutes",
-    value: "2",
-    icon: <MdOutlineTimer className="w-8 h-8" />,
-    description: "↙ -92.50%",
-    // description: "↗︎ -92.50%",
-  },
-  {
-    title: "Number of Calls",
-    value: "12",
-    icon: <MdPhoneForwarded className="w-8 h-8" />,
-    description: "↙ -83.33%",
-  },
-  {
-    title: "Total Spent",
-    value: "$0.15",
-    icon: <MdMoney className="w-8 h-8" />,
-    description: "↙ -95.81%",
-  },
-  {
-    title: "Average Cost per Call",
-    value: "$0.04",
-    icon: <MdAttachMoney className="w-8 h-8" />,
-    description: "↙ -74.87%",
-  },
-];
 
 ChartJS.register(ArcElement, Tooltip, Legend, Tooltip, Filler, Legend);
 function Dashboard() {
@@ -66,10 +37,16 @@ function Dashboard() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [startDate, setStartDate] = useState(new Date().toISOString());
   const [endDate, setEndDate] = useState(new Date().toISOString());
+  const [totalCallMins, setTotalCallMins] = useState("0");
+  const [noOfCalls, setNoOfCalls] = useState("0");
+  const [totalSpent, setTotalSpent] = useState("0.00");
+  const [averageCost, setAverageCost] = useState("0.00");
+  const [assistants, setAssistants] = useState([]);
+  const [assistantCalls, setAssistantCalls] = useState([]);
+  const [failedCalls, setFailedCalls] = useState([]);
 
   const updateDashboardPeriod = (newRange) => {
     // Dashboard range changed, write code to refresh your values
-    console.log("new start date", new Date(newRange.startDate).toISOString());
     setStartDate(new Date(newRange.startDate).toISOString());
     setEndDate(new Date(newRange.endDate).toISOString());
 
@@ -87,6 +64,8 @@ function Dashboard() {
     },
   };
 
+  const endCalllabels = ["customer-ended-call", "assistant-ended-call"];
+
   const labels = [
     "Electronics",
     "Home Applicances",
@@ -97,11 +76,18 @@ function Dashboard() {
   ];
 
   const reasonData = {
-    labels,
+    endCalllabels,
     datasets: [
       {
         label: "# of Orders",
-        data: [122, 219, 30, 51, 82, 13],
+        data: [
+          failedCalls.filter(
+            (reason) => reason.endedReason == "customer-ended-call"
+          ).length,
+          failedCalls.filter(
+            (reason) => reason.endedReason == "assistant-ended-call"
+          ).length,
+        ],
         backgroundColor: [
           "rgba(255, 99, 132, 0.8)",
           "rgba(54, 162, 235, 0.8)",
@@ -160,6 +146,22 @@ function Dashboard() {
   useEffect(() => {
     analytics();
   }, [startDate, endDate]);
+
+  const getAssistantName = async (id, index) => {
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${process.env.REACT_APP_TOKEN}`);
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+    const res = await fetch(VAPI_API_URL + "assistant/" + id, requestOptions);
+    const resdata = await res.json();
+    // assistants[index].name = resdata.name;
+    assistants[index] = { ...assistants[index], name: resdata.name };
+    setAssistants(assistants);
+  };
 
   const analytics = () => {
     const myHeaders = new Headers();
@@ -340,7 +342,67 @@ function Dashboard() {
 
     fetch(VAPI_API_URL + "analytics", requestOptions)
       .then((response) => response.json())
-      .then((result) => console.log(result))
+      .then((result) => {
+        console.log(result);
+        // total call minutes
+        let totalMins = result.filter((res) => res.name == "Total Minutes")[0];
+        if (totalMins.result?.length > 0) {
+          let totalMinSum;
+          totalMinSum = totalMins.result?.reduce(function (prev, current) {
+            return parseInt(prev + +current.sumDuration);
+          }, 0);
+          setTotalCallMins(totalMinSum);
+        }
+        // number of calls
+        let callNo = result.filter(
+          (res) => res.name == "Number of Calls by Assistant"
+        )[0];
+        setNoOfCalls(callNo.result?.length);
+
+        // total spent
+        let spentTotal = result.filter((res) => res.name == "Total Spent")[0];
+        if (spentTotal.result?.length > 0) {
+          let totalSpentSum;
+          totalSpentSum = spentTotal.result?.reduce(function (prev, current) {
+            return parseInt(prev + +current.sumCost);
+          }, 0);
+          setTotalSpent(totalSpentSum);
+        }
+
+        // average cost per call
+        let costAvg = result.filter(
+          (res) => res.name == "Average Call Cost"
+        )[0];
+        if (costAvg.result?.length > 0) {
+          let avgCostSum;
+          avgCostSum = costAvg.result?.reduce(function (prev, current) {
+            return parseInt(prev + +current.avgCost);
+          }, 0);
+          setAverageCost(avgCostSum);
+        }
+        // assistants
+        let assistantsData = result.filter(
+          (res) => res.name == "Average Call Duration by Assistant"
+        )[0];
+        if (assistantsData.result?.length > 0) {
+          setAssistants(assistantsData.result);
+          // assistantsData.result.map((data, index) => {
+          //   getAssistantName(data.assistantId, index);
+          // });
+        }
+        // Number of Calls by Assistant
+        let assistantCalls = result.filter(
+          (res) => res.name == "Number of Calls by Assistant"
+        )[0];
+        setAssistantCalls(assistantCalls.result);
+
+        // Number of Failed Calls
+        let failedCalls = result.filter(
+          (res) => res.name == "Number of Failed Calls"
+        )[0];
+        setFailedCalls(failedCalls.result);
+      })
+
       .catch((error) => console.error(error));
   };
 
@@ -351,9 +413,34 @@ function Dashboard() {
 
       {/** ---------------------- Different stats content 1 ------------------------- */}
       <div className="grid lg:grid-cols-4 mt-2 md:grid-cols-2 grid-cols-1 gap-6">
-        {statsData.map((d, k) => {
-          return <DashboardStats key={k} {...d} colorIndex={k} />;
-        })}
+        <DashboardStats
+          title="Total Call Minutes"
+          value={totalCallMins}
+          Icon={MdOutlineTimer}
+          description="↙ -92.50%"
+          colorIndex={0}
+        />
+        <DashboardStats
+          title="Number of Calls"
+          value={noOfCalls}
+          Icon={MdPhoneForwarded}
+          description="↙ 83.33%%"
+          colorIndex={1}
+        />
+        <DashboardStats
+          title="Total Spent"
+          value={`$${totalSpent}`}
+          Icon={MdMoney}
+          description="↙ 95.81%%"
+          colorIndex={1}
+        />
+        <DashboardStats
+          title="Average Cost per Call"
+          value={`$${averageCost}`}
+          Icon={MdAttachMoney}
+          description="↙ 74.87%%"
+          colorIndex={1}
+        />
       </div>
 
       {/** ---------------------- Different charts ------------------------- */}
@@ -395,7 +482,7 @@ function Dashboard() {
           </TitleCard>
           <TitleCard topMargin="mt-0">
             <p className="text-lg font-bold mt-0">
-              Average Call Duration by Assistance
+              Average Call Duration By Assistance
             </p>
             <p className="text-xs mt-0 mb-4">
               Average call duration by assistance in minutes.
@@ -403,7 +490,7 @@ function Dashboard() {
             <Doughnut options={options} data={averageCallData} />
           </TitleCard>
         </div>
-        <UserChannels />
+        <UserChannels data={assistants} />
       </div>
 
       {/** ---------------------- Different stats content 2 ------------------------- */}
