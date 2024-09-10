@@ -41,7 +41,7 @@ function Header() {
     }
     console.log("page title", url);
     // 👆 false parameter is required for react project
-  }, []);
+  }, [currentTheme, pageTitle]);
 
   // Opening right sidebar for notification
   const openNotification = () => {
@@ -78,7 +78,7 @@ function Header() {
         <div className="flex-1">
           <label
             htmlFor="left-sidebar-drawer"
-            className="btn btn-primary drawer-button lg:hidden"
+            className="btn btn-primary drawer-button 2xl:hidden"
           >
             <Bars3Icon className="h-5 inline-block w-5" />
           </label>
