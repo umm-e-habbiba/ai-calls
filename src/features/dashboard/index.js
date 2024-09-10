@@ -34,8 +34,11 @@ ChartJS.register(ArcElement, Tooltip, Legend, Tooltip, Filler, Legend);
 function Dashboard() {
   const dispatch = useDispatch();
   const date = new Date();
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [startDate, setStartDate] = useState(new Date().toISOString());
+  const [token, setToken] = useState(localStorage.getItem("token")); //oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const oneWeekAgo = date.setDate(date.getDate() - 7);
+  const [startDate, setStartDate] = useState(
+    new Date(oneWeekAgo).toISOString()
+  );
   const [endDate, setEndDate] = useState(new Date().toISOString());
   const [totalCallMins, setTotalCallMins] = useState("0");
   const [noOfCalls, setNoOfCalls] = useState("0");
