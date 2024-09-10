@@ -16,21 +16,9 @@ const PhoneNumbers = () => {
   const dispatch = useDispatch();
   // const [showImport, setShowImport] = useState(true);
   const [showPhoneNoDetail, setShowPhoneNoDetail] = useState(true);
-  const [currentPhoneNumber, setCurrentPhoneNumber] = useState({
-    id: "1",
-    number: "+1234",
-  });
+  const [currentPhoneNumber, setCurrentPhoneNumber] = useState({});
   const [phoneNumberId, setPhoneNumberId] = useState("");
-  const [phoneNumbers, setPhoneNumbers] = useState([
-    {
-      id: "1",
-      number: "+1234",
-    },
-    {
-      id: "2",
-      number: "+5678",
-    },
-  ]);
+  const [phoneNumbers, setPhoneNumbers] = useState([]);
 
   useEffect(() => {
     setCurrentPhoneNumber(

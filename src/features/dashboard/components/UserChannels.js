@@ -1,15 +1,10 @@
-import { useEffect } from "react";
 import TitleCard from "../../../components/Cards/TitleCard";
 
-function UserChannels({ data }) {
-  useEffect(() => {
-    console.log("data", data);
-  }, []);
-
+function UserChannels({ data, names }) {
   return (
-    <TitleCard topMargin="mt-0">
+    <TitleCard topMargin="mt-0" key={names}>
       {/** Table Data */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-hidden">
         <table className="table w-full">
           <thead>
             <tr>
@@ -19,21 +14,16 @@ function UserChannels({ data }) {
             </tr>
           </thead>
           <tbody>
-            {data && data.length > 0 ? (
-              data.map((u, k) => {
+            {names && names.length > 0 ? (
+              names.map((u, k) => {
                 return (
                   <tr key={k}>
-                    {/* <td>{getAssistantName(u.assistantId)}</td> */}
-                    <td>{u.assistantId}</td>
+                    <td>{u.name ? u.name : "Unknown"}</td>
+                    {/* <td>{u.assistantId}</td> */}
+                    <td>{u.count}</td>
                     <td>
-                      remaining
-                      {/* {
-                        calls.filter((x) => x.assistantId == u.assistantId)[0]
-                          .countId
-                      } */}
-                    </td>
-                    <td>
-                      {parseInt(u.avgDuration)}
+                      {u.avgDuration.substring(0, 4)}
+                      {/* {parseInt(u.avgDuration)} */}
                       <span className="opacity-50"> min</span>
                     </td>
                   </tr>

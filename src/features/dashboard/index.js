@@ -43,16 +43,23 @@ function Dashboard() {
   const [totalCallMins, setTotalCallMins] = useState("0");
   const [noOfCalls, setNoOfCalls] = useState("0");
   const [totalSpent, setTotalSpent] = useState("0.00");
+  const [costPerProvider, setCostPerProvider] = useState("0.00");
   const [averageCost, setAverageCost] = useState("0.00");
   const [assistants, setAssistants] = useState([]);
   const [assistantCalls, setAssistantCalls] = useState([]);
   const [failedCalls, setFailedCalls] = useState([]);
+  const [endCalllabels, setEndCalllabels] = useState([]);
+  const [endCallData, setEndCallData] = useState([]);
+  const [assistantsName, setAssistantsName] = useState([]);
+  const [assistantsNameData, setAssistantsNameData] = useState([]);
+  const [assistantsDurData, setAssistantsDurData] = useState([]);
 
   const updateDashboardPeriod = (newRange) => {
     // Dashboard range changed, write code to refresh your values
     setStartDate(new Date(newRange.startDate).toISOString());
     setEndDate(new Date(newRange.endDate).toISOString());
 
+    analytics();
     dispatch(
       showNotification({
         message: `Period updated to ${newRange.startDate} to ${newRange.endDate}`,
@@ -67,8 +74,6 @@ function Dashboard() {
     },
   };
 
-  const endCalllabels = ["customer-ended-call", "assistant-ended-call"];
-
   const labels = [
     "Electronics",
     "Home Applicances",
@@ -79,18 +84,10 @@ function Dashboard() {
   ];
 
   const reasonData = {
-    endCalllabels,
+    labels: endCalllabels,
     datasets: [
       {
-        label: "# of Orders",
-        data: [
-          failedCalls.filter(
-            (reason) => reason.endedReason == "customer-ended-call"
-          ).length,
-          failedCalls.filter(
-            (reason) => reason.endedReason == "assistant-ended-call"
-          ).length,
-        ],
+        data: endCallData.slice(0, endCalllabels.length),
         backgroundColor: [
           "rgba(255, 99, 132, 0.8)",
           "rgba(54, 162, 235, 0.8)",
@@ -108,15 +105,16 @@ function Dashboard() {
           "rgba(255, 159, 64, 1)",
         ],
         borderWidth: 1,
+        hoverOffset: 4,
       },
     ],
   };
   const averageCallData = {
-    labels,
+    labels: assistantsNameData,
     datasets: [
       {
-        label: "# of Orders",
-        data: [230, 120, 80, 11, 32, 31],
+        label: "Minutes",
+        data: assistantsDurData,
         backgroundColor: [
           "rgba(255, 99, 132, 0.8)",
           "rgba(54, 162, 235, 0.8)",
@@ -146,11 +144,11 @@ function Dashboard() {
     }
   }, []);
 
-  useEffect(() => {
-    analytics();
-  }, [startDate, endDate]);
-
-  const getAssistantName = async (id, index) => {
+  const getAssistantName = async (id, index, duration) => {
+    const getCallsCount = assistantCalls.filter(
+      (item) => item.assistantId == id
+    )[0];
+    console.log("get call count", getCallsCount);
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${process.env.REACT_APP_TOKEN}`);
 
@@ -161,9 +159,27 @@ function Dashboard() {
     };
     const res = await fetch(VAPI_API_URL + "assistant/" + id, requestOptions);
     const resdata = await res.json();
-    // assistants[index].name = resdata.name;
-    assistants[index] = { ...assistants[index], name: resdata.name };
-    setAssistants(assistants);
+    const addObject = {
+      id: id,
+      name: resdata.name ? resdata.name : "Unknown",
+      avgDuration: duration,
+      count: getCallsCount.countId,
+    };
+    if (!assistantsName.find((item) => item.id === id)) {
+      assistantsName.push(addObject);
+    } else {
+      const valueIndex = assistantsName.findIndex((obj) => obj.id == id);
+      assistantsName[valueIndex].duration =
+        assistantsName[valueIndex].duration + duration;
+      assistantsName[valueIndex].count =
+        parseInt(assistantsName[valueIndex].count) +
+        parseInt(getCallsCount.countId);
+    }
+    setAssistantsName(assistantsName);
+    let getNames = assistantsName.map((a) => a.name);
+    let getDuration = assistantsName.map((a) => a.avgDuration);
+    setAssistantsNameData(getNames);
+    setAssistantsDurData(getDuration);
   };
 
   const analytics = () => {
@@ -208,6 +224,22 @@ function Dashboard() {
             {
               operation: "sum",
               column: "duration",
+            },
+          ],
+          timeRange: {
+            start: startDate,
+            end: endDate,
+            step: "day",
+            timezone: "UTC",
+          },
+        },
+        {
+          name: "Cost Per Provider",
+          table: "call",
+          operations: [
+            {
+              operation: "sum",
+              column: "cost",
             },
           ],
           timeRange: {
@@ -372,6 +404,22 @@ function Dashboard() {
           setTotalSpent(totalSpentSum);
         }
 
+        // Cost Per Provider
+        let costPerProvider = result.filter(
+          (res) => res.name == "Cost Per Provider"
+        )[0];
+        if (costPerProvider.result?.length > 0) {
+          let costProviderSum;
+          costProviderSum = costPerProvider.result?.reduce(function (
+            prev,
+            current
+          ) {
+            return parseInt(prev + +current.sumCost);
+          },
+          0);
+          setCostPerProvider(costProviderSum);
+        }
+
         // average cost per call
         let costAvg = result.filter(
           (res) => res.name == "Average Call Cost"
@@ -383,27 +431,47 @@ function Dashboard() {
           }, 0);
           setAverageCost(avgCostSum);
         }
-        // assistants
-        let assistantsData = result.filter(
-          (res) => res.name == "Average Call Duration by Assistant"
-        )[0];
-        if (assistantsData.result?.length > 0) {
-          setAssistants(assistantsData.result);
-          // assistantsData.result.map((data, index) => {
-          //   getAssistantName(data.assistantId, index);
-          // });
-        }
+
         // Number of Calls by Assistant
         let assistantCalls = result.filter(
           (res) => res.name == "Number of Calls by Assistant"
         )[0];
         setAssistantCalls(assistantCalls.result);
 
+        // assistants
+        let assistantsData = result.filter(
+          (res) => res.name == "Average Call Duration by Assistant"
+        )[0];
+        if (assistantsData.result?.length > 0) {
+          setAssistants(assistantsData.result);
+          assistantsData.result.map((data, index) => {
+            getAssistantName(data.assistantId, index, data.avgDuration);
+          });
+        }
+
         // Number of Failed Calls
-        let failedCalls = result.filter(
+        let failedCallsData = result.filter(
           (res) => res.name == "Number of Failed Calls"
         )[0];
-        setFailedCalls(failedCalls.result);
+        setFailedCalls(failedCallsData.result);
+        if (failedCallsData.result?.length > 0) {
+          // set labels array
+          failedCallsData.result?.map((data) => {
+            if (!endCalllabels.find((item) => item === data.endedReason)) {
+              // search by id
+              endCalllabels.push(data.endedReason);
+            }
+          });
+          setEndCalllabels(endCalllabels);
+          // set data for donut chart
+          endCalllabels.map((reason) => {
+            endCallData.push(
+              failedCallsData.result?.filter((d) => d.endedReason == reason)
+                .length
+            );
+          });
+          setEndCallData(endCallData);
+        }
       })
 
       .catch((error) => console.error(error));
@@ -427,21 +495,21 @@ function Dashboard() {
           title="Number of Calls"
           value={noOfCalls}
           Icon={MdPhoneForwarded}
-          description="↙ 83.33%%"
+          description="↙ 83.33%"
           colorIndex={1}
         />
         <DashboardStats
           title="Total Spent"
           value={`$${totalSpent}`}
           Icon={MdMoney}
-          description="↙ 95.81%%"
+          description="↙ 95.81%"
           colorIndex={1}
         />
         <DashboardStats
           title="Average Cost per Call"
           value={`$${averageCost}`}
           Icon={MdAttachMoney}
-          description="↙ 74.87%%"
+          description="↙ 74.87%"
           colorIndex={1}
         />
       </div>
@@ -493,13 +561,20 @@ function Dashboard() {
             <Doughnut options={options} data={averageCallData} />
           </TitleCard>
         </div>
-        <UserChannels data={assistants} />
+        <UserChannels data={assistants} names={assistantsName} />
       </div>
 
       {/** ---------------------- Different stats content 2 ------------------------- */}
 
       <div className="grid lg:grid-cols-2 mt-10 grid-cols-1 gap-6">
-        <AmountStats />
+        {/* <AmountStats/> */}
+        <DashboardStats
+          title="Cost per Provider"
+          value={`$${costPerProvider}`}
+          Icon={"span"}
+          description="↙ -92.50%"
+          colorIndex={5}
+        />
         {/* <PageStats /> */}
       </div>
     </>

@@ -5,6 +5,7 @@ import { DATA } from "../../components/Call Logs/CallLogData";
 import { useDispatch } from "react-redux";
 import { setPageTitle } from "../../features/common/headerSlice";
 import { VAPI_API_URL } from "../../store";
+import CallLogsNoResult from "../../components/Call Logs/CallLogsNoResult";
 
 const CallLogs = () => {
   const [isCallLogs, setIsCallLogs] = useState(false);
@@ -43,6 +44,7 @@ const CallLogs = () => {
         console.log("calls", result);
         if (result.length > 0) {
           setData(result);
+          setIsCallLogs(true);
         }
       })
       .catch((error) => console.error(error));
