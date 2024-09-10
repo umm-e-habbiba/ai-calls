@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux"; // useSelector,
 import PlusICon from "@heroicons/react/24/outline/PlusCircleIcon";
 import PhoneICon from "@heroicons/react/24/outline/PhoneIcon";
 import ExclamationICon from "@heroicons/react/24/outline/ExclamationCircleIcon";
@@ -28,18 +28,18 @@ import { MdLineStyle } from "react-icons/md";
 import {
   CCard,
   CCardBody,
-  CDropdown,
-  CDropdownDivider,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
+  // CDropdown,
+  // CDropdownDivider,
+  // CDropdownItem,
+  // CDropdownMenu,
+  // CDropdownToggle,
   CFormCheck,
   CFormInput,
-  CFormLabel,
+  // CFormLabel,
   CFormRange,
   CFormSelect,
-  CFormSwitch,
-  CInputGroup,
+  // CFormSwitch,
+  // CInputGroup,
   CNav,
   CNavItem,
   CNavLink,
@@ -51,24 +51,19 @@ import {
 } from "@coreui/react";
 import Multiselect from "multiselect-react-dropdown";
 import { setPageTitle } from "../../features/common/headerSlice";
+import {
+  ASSISTANTS_API_OPTIONS,
+  ASSISTANTS_API_URL,
+} from "../../components/Assistants Api/AssistantsApi";
 const Assistants = () => {
   const dispatch = useDispatch();
-  const [noAssistant, setNoAssistant] = useState(false);
+  const [noAssistant, setNoAssistant] = useState(true);
   const [currentAssistant, setCurrentAssistant] = useState({
     id: "1",
     name: "first assistant",
   });
-  const [assistantId, setAssistantId] = useState("1");
-  const [assistants, setAssistants] = useState([
-    {
-      id: "1",
-      name: "first assistant",
-    },
-    {
-      id: "2",
-      name: "second assistant",
-    },
-  ]);
+  const [assistantId, setAssistantId] = useState(0);
+  const [assistants, setAssistants] = useState([]);
   const [activeKey, setActiveKey] = useState("model");
   const [temperature, setTemperature] = useState(1.2);
   const [silenceTimeout, setSilenceTimeout] = useState(260);
@@ -101,15 +96,84 @@ const Assistants = () => {
     "Feel free to ask any questions.",
   ];
 
-  useEffect(() => {
-    dispatch(setPageTitle({ title: "Assistants" }));
-  }, []);
+  const providers = [
+    "vapi",
+    "openai",
+    "together-ai",
+    "anyscale",
+    "openrouter",
+    "perplexity-ai",
+    "deepinfra",
+    "groq",
+    "anthropic",
+    "custom-llm",
+  ];
+
+  const models = [
+    "GPT 4o Cluster",
+    "GPT 4o Mini Cluster",
+    "GPT 3.5 Turbo Cluster",
+    "GPT 4 Turbo Cluster",
+  ];
+
+  const transcriberProvider = ["deepgram", "talkscriber", "gladia"];
+
+  const transcriberModel = [
+    {
+      model: ["Fast", "Accurate"],
+    },
+    {
+      model: [
+        "Nova 2",
+        "Nova 2 General",
+        "Nova 2 Meeting",
+        "Nova 2 Phonecall",
+        "Nova 2 Finance",
+        "Nova 2 Conversational AI",
+        "Nova 2 Voicemail",
+        "Nova 2 Video",
+        "Nova 2 Medical",
+        "Nova 2 Drive Thru",
+        "Nova 2 Automotive",
+      ],
+    },
+    {
+      model: ["Whisper"],
+    },
+  ];
 
   useEffect(() => {
-    setCurrentAssistant(
-      assistants.filter((assit) => assit.id == assistantId)[0]
-    );
-  }, [assistantId]);
+    let result = null;
+    const fetchAssistants = async () => {
+      const response = await fetch(ASSISTANTS_API_URL, ASSISTANTS_API_OPTIONS);
+      result = await response.json();
+      console.log(result);
+
+      if (result) {
+        setAssistants(result);
+        setNoAssistant(false);
+        const assistant = result.filter((assistant, index) => {
+          if (index === 0) {
+            return assistant;
+          }
+          return null;
+        });
+        setCurrentAssistant(assistant[0]);
+      }
+    };
+
+    fetchAssistants();
+  }, [setAssistants]);
+
+  useEffect(() => {
+    dispatch(setPageTitle({ title: "Assistants" }));
+  }, [dispatch]);
+
+  // useEffect(() => {
+  //   setCurrentAssistant(
+  //     assistants.filter((assit) => assit.id === assistantId)[0]
+  //   );
+  // }, [assistantId, assistants]);
 
   const openNotification = () => {
     dispatch(
@@ -119,6 +183,17 @@ const Assistants = () => {
       })
     );
   };
+
+  const handleCurrentAssistant = (id) => {
+    const assistant = assistants.filter((assistant) => {
+      if (assistant.id === id) {
+        return assistant;
+      }
+      return null;
+    });
+    setCurrentAssistant(assistant[0]);
+  };
+
   return (
     <>
       {noAssistant && (
@@ -158,12 +233,13 @@ const Assistants = () => {
                 assistants.length > 0 &&
                 assistants.map((assistant, index) => (
                   <div
-                    className={`group flex flex-col p-2 rounded-lg w-full border border-transparent hover:bg-background/50 cursor-pointer transition-all duration-150 ease-in-out ${
-                      currentAssistant.name == assistant.name
-                        ? "bg-primary/10"
+                    key={index}
+                    className={`group flex flex-col p-2 rounded-lg w-full border border-transparent hover:bg-[#2B3039] cursor-pointer transition-all duration-150 ease-in-out ${
+                      currentAssistant.name === assistant.name
+                        ? "bg-[#1D232A]"
                         : ""
                     }`}
-                    onClick={() => setAssistantId(index + 1)}
+                    onClick={() => handleCurrentAssistant(assistant.id)} //() => setAssistantId(assistant.id)
                   >
                     <div className="flex justify-between items-center  transition-all duration-150 ease-in-out">
                       <div className="flex flex-col justify-between items-start">
@@ -317,7 +393,7 @@ const Assistants = () => {
                     active={activeKey === "model"}
                     onClick={() => setActiveKey("model")}
                     className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 text-sm font-medium hover:bg-hover disabled:pointer-events-none disabled:opacity-50 focus:border ${
-                      activeKey == "model"
+                      activeKey === "model"
                         ? "shadow bg-primary/10 text-primary border"
                         : ""
                     } border-transparent group rounded-[8px] gap-x-2 m-0 transition-all duration-100 ease-in-out active:scale-[0.95] text-text/50 hover:text-text/90`}
@@ -332,7 +408,7 @@ const Assistants = () => {
                     active={activeKey === "transcriber"}
                     onClick={() => setActiveKey("transcriber")}
                     className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 text-sm font-medium hover:bg-hover disabled:pointer-events-none disabled:opacity-50 focus:border ${
-                      activeKey == "transcriber"
+                      activeKey === "transcriber"
                         ? "shadow bg-primary/10 text-primary border"
                         : ""
                     } border-transparent group rounded-[8px] gap-x-2 m-0 transition-all duration-100 ease-in-out active:scale-[0.95] text-text/50 hover:text-text/90`}
@@ -347,7 +423,7 @@ const Assistants = () => {
                     active={activeKey === "voice"}
                     onClick={() => setActiveKey("voice")}
                     className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 text-sm font-medium hover:bg-hover disabled:pointer-events-none disabled:opacity-50 focus:border ${
-                      activeKey == "voice"
+                      activeKey === "voice"
                         ? "shadow bg-primary/10 text-primary border"
                         : ""
                     } border-transparent group rounded-[8px] gap-x-2 m-0 transition-all duration-100 ease-in-out active:scale-[0.95] text-text/50 hover:text-text/90`}
@@ -362,7 +438,7 @@ const Assistants = () => {
                     active={activeKey === "functions"}
                     onClick={() => setActiveKey("functions")}
                     className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 text-sm font-medium hover:bg-hover disabled:pointer-events-none disabled:opacity-50 focus:border ${
-                      activeKey == "functions"
+                      activeKey === "functions"
                         ? "shadow bg-primary/10 text-primary border"
                         : ""
                     } border-transparent group rounded-[8px] gap-x-2 m-0 transition-all duration-100 ease-in-out active:scale-[0.95] text-text/50 hover:text-text/90`}
@@ -377,7 +453,7 @@ const Assistants = () => {
                     active={activeKey === "advanced"}
                     onClick={() => setActiveKey("advanced")}
                     className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 text-sm font-medium hover:bg-hover disabled:pointer-events-none disabled:opacity-50 focus:border ${
-                      activeKey == "advanced"
+                      activeKey === "advanced"
                         ? "shadow bg-primary/10 text-primary border"
                         : ""
                     } border-transparent group rounded-[8px] gap-x-2 m-0 transition-all duration-100 ease-in-out active:scale-[0.95] text-text/50 hover:text-text/90`}
@@ -392,7 +468,7 @@ const Assistants = () => {
                     active={activeKey === "analysis"}
                     onClick={() => setActiveKey("analysis")}
                     className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 text-sm font-medium hover:bg-hover disabled:pointer-events-none disabled:opacity-50 focus:border ${
-                      activeKey == "analysis"
+                      activeKey === "analysis"
                         ? "shadow bg-primary/10 text-primary border"
                         : ""
                     } border-transparent group rounded-[8px] gap-x-2 m-0 transition-all duration-100 ease-in-out active:scale-[0.95] text-text/50 hover:text-text/90`}
@@ -418,7 +494,7 @@ const Assistants = () => {
                 </button> */}
                 <button
                   type="button"
-                  class="py-2.5 px-3 me-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                  className="py-2.5 px-3 me-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
                 >
                   {" "}
                   <TrashIcon className="w-5 h-5" />
@@ -430,7 +506,7 @@ const Assistants = () => {
                 activeKey === "model" ? "h-screen sm:h-auto" : "h-auto"
               } border`}
             >
-              {activeKey == "model" && (
+              {activeKey === "model" && (
                 <CTabPane
                   role="tabpanel"
                   aria-labelledby="model-tab"
@@ -446,7 +522,7 @@ const Assistants = () => {
                       <div className="flex flex-col md:flex-row md:justify-start md:items-center rounded-xl p-3 bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow border mt-3">
                         <div className="w-full mr-3">
                           <div>
-                            <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               First Message{" "}
                               <CTooltip
                                 content="The first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.)."
@@ -459,15 +535,19 @@ const Assistants = () => {
                             <input
                               type="text"
                               id="first_name"
-                              class="text-sm rounded-lg block w-full p-2.5"
+                              className="text-sm rounded-lg block w-full p-2.5"
                               placeholder=""
                               required
+                              value={currentAssistant.firstMessage}
+                              onChange={(e) => {
+                                currentAssistant.firstMessage = e.target.value;
+                              }}
                             />
                           </div>
                           <div>
                             <label
                               for="message"
-                              class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center"
+                              className="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center"
                             >
                               System Prompt{" "}
                               <CTooltip
@@ -481,27 +561,50 @@ const Assistants = () => {
                             <textarea
                               id="message"
                               rows="10"
-                              class="text-sm rounded-lg block w-full p-2.5"
+                              className="text-sm rounded-lg block w-full p-2.5"
                               placeholder="Add your prompt here..."
+                              value={currentAssistant.model.messages[0].content}
+                              onChange={(e) => {
+                                currentAssistant.model.messages[0].content =
+                                  e.target.value;
+                              }}
                             ></textarea>
                           </div>
                         </div>
                         <div className="hide-scrollbar h-[200px] sm:h-full w-full sm:max-w-[240px]">
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Provider
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
-                              <option>Open this select menu</option>
-                              <option value="1">One</option>
-                              <option value="2">Two</option>
-                              <option value="3" disabled>
-                                Three
-                              </option>
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2 cursor-pointer">
+                              {providers.map((provider, index) => {
+                                if (
+                                  currentAssistant.model.provider === provider
+                                ) {
+                                  return (
+                                    <>
+                                      <option
+                                        key={index}
+                                        value={provider}
+                                        selected
+                                      >
+                                        {provider}
+                                      </option>
+                                    </>
+                                  );
+                                }
+                                return (
+                                  <>
+                                    <option key={index} value={provider}>
+                                      {provider}
+                                    </option>
+                                  </>
+                                );
+                              })}
                             </CFormSelect>
                           </div>
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Model{" "}
                               <CTooltip
                                 content="We benchmark and rank ~20 models and instances across Azure and OpenAI for GPT 3.5 picking fastest at any one moment."
@@ -511,20 +614,36 @@ const Assistants = () => {
                                 <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                               </CTooltip>
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
-                              <option>Open this select menu</option>
-                              <option value="1">One</option>
-                              <option value="2">Two</option>
-                              <option value="3" disabled>
-                                Three
-                              </option>
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2 cursor-pointer">
+                              {models.map((model, index) => {
+                                if (currentAssistant.model.model === model) {
+                                  return (
+                                    <>
+                                      <option
+                                        key={index}
+                                        value={model}
+                                        selected
+                                      >
+                                        {model}
+                                      </option>
+                                    </>
+                                  );
+                                }
+                                return (
+                                  <>
+                                    <option key={index} value={model}>
+                                      {model}
+                                    </option>
+                                  </>
+                                );
+                              })}
                             </CFormSelect>
                           </div>
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white">
                               Knowledge base
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                               <option>Open this select menu</option>
                               <option value="1">One</option>
                               <option value="2">Two</option>
@@ -535,7 +654,7 @@ const Assistants = () => {
                           </div>
                           <div>
                             <div className="flex justify-between items-center">
-                              <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                                 Temperature{" "}
                                 <CTooltip
                                   content="The temperature is used to control the randomness of the output. When you set it higher, you'll get more random outputs. When you set it lower, towards 0, the values are more deterministic."
@@ -546,21 +665,24 @@ const Assistants = () => {
                                 </CTooltip>
                               </label>
                               <span className="text-sm rounded-lg block p-2.5">
-                                {temperature}
+                                {currentAssistant.model.temperature}
                               </span>
                             </div>
                             <CFormRange
                               min={1}
                               max={2}
                               step={0.1}
-                              value={temperature}
+                              value={currentAssistant.model.temperature}
                               defaultValue={temperature}
-                              onChange={(e) => setTemperature(e.target.value)}
-                              class="w-full h-1"
+                              onChange={(e) => {
+                                currentAssistant.model.temperature =
+                                  e.target.value;
+                              }}
+                              className="w-full h-1"
                             />
                           </div>
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Max Tokens{" "}
                               <CTooltip
                                 content="This is the max number of tokens that the assistant will be allowed to generate in each turn of the conversation."
@@ -571,12 +693,12 @@ const Assistants = () => {
                               </CTooltip>
                             </label>
                             <CFormInput
-                              class="text-sm rounded-lg block w-full p-2.5 mb-2"
+                              className="text-sm rounded-lg block w-full p-2.5 mb-2"
                               type="number"
                             />
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
-                            <span class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="flex justify-between items-center cursor-pointer">
+                            <span className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Direct Emotion{" "}
                               <CTooltip
                                 content="Enable this property to detect user's emotion such as anger, joy etc. and feed it as an additional context to the model"
@@ -588,10 +710,16 @@ const Assistants = () => {
                             </span>
                             <input
                               type="checkbox"
-                              value=""
-                              class="sr-only peer"
+                              checked={
+                                currentAssistant.model.emotionRecognitionEnabled
+                              }
+                              onChange={(e) => {
+                                currentAssistant.model.emotionRecognitionEnabled =
+                                  e.target.checked;
+                              }}
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                       </div>
@@ -599,7 +727,7 @@ const Assistants = () => {
                   </CCard>
                 </CTabPane>
               )}
-              {activeKey == "transcriber" && (
+              {activeKey === "transcriber" && (
                 <CTabPane
                   role="tabpanel"
                   aria-labelledby="transcriber-tab"
@@ -615,23 +743,39 @@ const Assistants = () => {
                       <div className="rounded-xl p-3 bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow border mt-3">
                         <div className="grid grid-cols-2 gap-2 my-3">
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Provider
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
-                              <option>Open this select menu</option>
-                              <option value="1">One</option>
-                              <option value="2">Two</option>
-                              <option value="3" disabled>
-                                Three
-                              </option>
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
+                              {transcriberProvider.map((transcriber, index) => {
+                                if (currentAssistant.transcriber.provider) {
+                                  return (
+                                    <>
+                                      <option
+                                        key={index}
+                                        value={transcriber}
+                                        selected
+                                      >
+                                        {transcriber}
+                                      </option>
+                                    </>
+                                  );
+                                }
+                                return (
+                                  <>
+                                    <option key={index} value={transcriber}>
+                                      {transcriber}
+                                    </option>
+                                  </>
+                                );
+                              })}
                             </CFormSelect>
                           </div>
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Language
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                               <option>Open this select menu</option>
                               <option value="1">One</option>
                               <option value="2">Two</option>
@@ -647,10 +791,10 @@ const Assistants = () => {
                           </div>
                         </div>
                         <div>
-                          <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Model
                           </label>
-                          <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                          <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                             <option>Open this select menu</option>
                             <option value="1">One</option>
                             <option value="2">Two</option>
@@ -664,7 +808,7 @@ const Assistants = () => {
                   </CCard>
                 </CTabPane>
               )}
-              {activeKey == "voice" && (
+              {activeKey === "voice" && (
                 <CTabPane
                   role="tabpanel"
                   aria-labelledby="voice-tab"
@@ -682,10 +826,10 @@ const Assistants = () => {
                       <div className="rounded-xl p-3 border bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow mt-3">
                         <div className="grid grid-cols-2 gap-2 my-3">
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Provider
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                               <option>Open this select menu</option>
                               <option value="1">One</option>
                               <option value="2">Two</option>
@@ -695,10 +839,10 @@ const Assistants = () => {
                             </CFormSelect>
                           </div>
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Voice
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                               <option>Open this select menu</option>
                               <option value="1">One</option>
                               <option value="2">Two</option>
@@ -729,7 +873,7 @@ const Assistants = () => {
                       <div className="rounded-xl p-3 border bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow mt-3">
                         <div className="grid grid-cols-2 gap-2 my-3">
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Background Sound
                               <CTooltip
                                 content="This is the background sound in the call. Default for phone calls is 'office' and default for web calls is 'off'."
@@ -739,7 +883,7 @@ const Assistants = () => {
                                 <ExclamationICon className="w-4 h-4 text-yellow-500 ml-4" />
                               </CTooltip>
                             </label>
-                            <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                            <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                               <option>Open this select menu</option>
                               <option value="1">One</option>
                               <option value="2">Two</option>
@@ -749,7 +893,7 @@ const Assistants = () => {
                             </CFormSelect>
                           </div>
                           <div>
-                            <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                            <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                               Input Min Characters
                               <CTooltip
                                 content="This is the minimum number of characters that will be passed to the voice provider. This helps decides the minimum chunk size that is sent to the voice provider for the voice generation as the LLM tokens are streaming in."
@@ -760,14 +904,14 @@ const Assistants = () => {
                               </CTooltip>
                             </label>
                             <CFormInput
-                              class="text-sm rounded-lg block w-full p-2.5 mb-2"
+                              className="text-sm rounded-lg block w-full p-2.5 mb-2"
                               placeholder="10"
                             />
                           </div>
                         </div>
                         <hr />
                         <div className="mt-2">
-                          <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Punctuation Boundaries
                           </label>
                           <p className="text-xs">
@@ -776,7 +920,7 @@ const Assistants = () => {
                             chunks that are sent to the voice provider for the
                             voice generation as the LLM tokens are streaming in.
                           </p>
-                          <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                          <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                             <option>Open this select menu</option>
                             <option value="1">One</option>
                             <option value="2">Two</option>
@@ -800,13 +944,13 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                         <hr />
@@ -824,13 +968,13 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                         <hr />
@@ -847,13 +991,13 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                       </div>
@@ -861,7 +1005,7 @@ const Assistants = () => {
                   </CCard>
                 </CTabPane>
               )}
-              {activeKey == "functions" && (
+              {activeKey === "functions" && (
                 <CTabPane
                   role="tabpanel"
                   aria-labelledby="functions-tab"
@@ -878,7 +1022,7 @@ const Assistants = () => {
                         have custom tools with your own backend.
                       </p>
                       <div
-                        class="p-2 my-3 text-xs text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800"
+                        className="p-2 my-3 text-xs text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800"
                         role="alert"
                       >
                         Note: Tools have different Request and Response format
@@ -888,7 +1032,7 @@ const Assistants = () => {
                         </a>{" "}
                         for more details
                       </div>
-                      <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                      <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                         <option>Select Tool</option>
                         <option value="1">One</option>
                         <option value="2">Two</option>
@@ -920,13 +1064,13 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                         <hr />
@@ -943,22 +1087,22 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                         <hr />
                         <div className="mt-2">
-                          <label class="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="mb-1 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Forwarding Phone Number
                           </label>
-                          <div class="flex">
-                            <CFormSelect class="text-sm rounded-l-lg block w-auto p-2.5 mb-2">
+                          <div className="flex">
+                            <CFormSelect className="text-sm rounded-l-lg block w-auto p-2.5 mb-2">
                               <option>Select Country</option>
                               <option value="1">One</option>
                               <option value="2">Two</option>
@@ -974,7 +1118,7 @@ const Assistants = () => {
                         </div>
                         <hr />
                         <div className="py-3">
-                          <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center capitalize">
+                          <label className="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center capitalize">
                             end call phrases{" "}
                             <CTooltip
                               content="Enter phrases, separated by commas, that will trigger the bot to end the call when spoken. (End Call Phrases work well with gpt-3.5-turbo and smaller models.)"
@@ -1003,7 +1147,7 @@ const Assistants = () => {
                         tools like Pipedream or Make for the setup.
                       </p>
                       <div
-                        class="p-2 my-3 text-xs text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-100 dark:bg-gray-800 dark:text-yellow-400 dark:border-yellow-800"
+                        className="p-2 my-3 text-xs text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-100 dark:bg-gray-800 dark:text-yellow-400 dark:border-yellow-800"
                         role="alert"
                       >
                         Note: Functions are the same as tools, except they
@@ -1017,7 +1161,7 @@ const Assistants = () => {
                         type="button"
                         disabled
                         // className="w-full border-3 border-dashed text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 text-center flex justify-center items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                        class="group text-text w-full flex items-center justify-center gap-2 bg-icon/30 border-2 border-dashed border-icon/50 rounded-xl p-3 hover:bg-icon/50 transition-all duration-150 ease-in-out active:border-2 active:border-dashed opacity-25 cursor-not-allowed border-black dark:border-gray-300"
+                        className="group text-text w-full flex items-center justify-center gap-2 bg-icon/30 border-2 border-dashed border-icon/50 rounded-xl p-3 hover:bg-icon/50 transition-all duration-150 ease-in-out active:border-2 active:border-dashed opacity-25 cursor-not-allowed border-black dark:border-gray-300"
                       >
                         Create a new function
                         <PlusICon className="w-5 h-5 ml-3" />
@@ -1026,7 +1170,7 @@ const Assistants = () => {
                   </CCard>
                 </CTabPane>
               )}
-              {activeKey == "advanced" && (
+              {activeKey === "advanced" && (
                 <CTabPane
                   role="tabpanel"
                   aria-labelledby="advanced-tab"
@@ -1060,13 +1204,13 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                         <hr />
@@ -1082,14 +1226,14 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
                               checked
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                         <hr />
@@ -1113,14 +1257,14 @@ const Assistants = () => {
                               </span>
                             </div>
                           </div>
-                          <label class="flex justify-between items-center cursor-pointer">
+                          <label className="flex justify-between items-center cursor-pointer">
                             <input
                               type="checkbox"
                               value=""
                               checked
-                              class="sr-only peer"
+                              className="sr-only peer"
                             />
-                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                         <hr />
@@ -1158,9 +1302,9 @@ const Assistants = () => {
                               onChange={(e) =>
                                 setSilenceTimeout(e.target.value)
                               }
-                              class="w-full h-1"
+                              className="w-full h-1"
                             />
-                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                            <div className="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
                               {silenceTimeout}
                             </div>
                           </div>
@@ -1188,9 +1332,9 @@ const Assistants = () => {
                               value={responseDelay}
                               defaultValue={responseDelay}
                               onChange={(e) => setResponseDelay(e.target.value)}
-                              class="w-full h-1"
+                              className="w-full h-1"
                             />
-                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                            <div className="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
                               {responseDelay}
                             </div>
                           </div>
@@ -1217,9 +1361,9 @@ const Assistants = () => {
                               value={LlmReqDelay}
                               defaultValue={LlmReqDelay}
                               onChange={(e) => setLlmReqDelay(e.target.value)}
-                              class="w-full h-1"
+                              className="w-full h-1"
                             />
-                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                            <div className="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
                               {LlmReqDelay}
                             </div>
                           </div>
@@ -1246,9 +1390,9 @@ const Assistants = () => {
                               value={interruption}
                               defaultValue={interruption}
                               onChange={(e) => setInterruption(e.target.value)}
-                              class="w-full h-1"
+                              className="w-full h-1"
                             />
-                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                            <div className="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
                               {interruption}
                             </div>
                           </div>
@@ -1274,9 +1418,9 @@ const Assistants = () => {
                               value={maxDuration}
                               defaultValue={maxDuration}
                               onChange={(e) => setMaxDuration(e.target.value)}
-                              class="w-full h-1"
+                              className="w-full h-1"
                             />
-                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                            <div className="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
                               {maxDuration}
                             </div>
                           </div>
@@ -1294,7 +1438,7 @@ const Assistants = () => {
                       </p>
                       <div className="rounded-xl p-3 border bg-gray-200 dark:bg-[#1A1C1F] border-[#1A1C1F] dark:border-bg-gray-300 shadow mt-3">
                         <div>
-                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Server Url
                           </label>
                           <div className="text-xs mb-1">
@@ -1304,13 +1448,13 @@ const Assistants = () => {
                             end-of-call reports.
                           </div>
                           <CFormInput
-                            class="text-sm rounded-lg block w-full p-2.5 my-2"
+                            className="text-sm rounded-lg block w-full p-2.5 my-2"
                             placeholder="Endpoint URL to handle Server messages"
                           />
                         </div>
                         <hr />
                         <div className="mt-3">
-                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Client Messages
                           </label>
                           <div className="text-xs mb-1">
@@ -1333,7 +1477,7 @@ const Assistants = () => {
                         </div>
                         <hr />
                         <div className="mt-3">
-                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Server Messages
                           </label>
                           <div className="text-xs mb-1">
@@ -1355,7 +1499,7 @@ const Assistants = () => {
                         </div>
                         <hr />
                         <div className="my-2">
-                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Voicemail Message
                           </label>
                           <div className="text-xs mb-1">
@@ -1363,13 +1507,13 @@ const Assistants = () => {
                             the call is forwarded to voicemail.
                           </div>
                           <CFormInput
-                            class="text-sm rounded-lg block w-full p-2.5 mt-2"
+                            className="text-sm rounded-lg block w-full p-2.5 mt-2"
                             placeholder="Hey, can you please callback? Thanks!"
                           />
                         </div>
                         <hr />
                         <div className="my-2">
-                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             End Call Message
                           </label>
                           <div className="text-xs mb-1">
@@ -1377,13 +1521,13 @@ const Assistants = () => {
                             it ends the call.
                           </div>
                           <CFormInput
-                            class="text-sm rounded-lg block w-full p-2.5 mt-2"
+                            className="text-sm rounded-lg block w-full p-2.5 mt-2"
                             placeholder="Goodbye!"
                           />
                         </div>
                         <hr />
                         <div className="my-2">
-                          <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                          <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                             Idle Messages
                           </label>
                           <div className="text-xs mb-1">
@@ -1426,9 +1570,9 @@ const Assistants = () => {
                               onChange={(e) =>
                                 setMaxIdleMessages(e.target.value)
                               }
-                              class="w-full h-1"
+                              className="w-full h-1"
                             />
-                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                            <div className="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
                               {maxIdleMessages}
                             </div>
                           </div>
@@ -1455,9 +1599,9 @@ const Assistants = () => {
                               value={idleTimeout}
                               defaultValue={idleTimeout}
                               onChange={(e) => setIdleTimeout(e.target.value)}
-                              class="w-full h-1"
+                              className="w-full h-1"
                             />
-                            <div class="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
+                            <div className="flex text-lg ml-4 text-primary rounded-xl bg-gray-200 dark:bg-[#14171A] shadow-sm shadow-black/10 transition-all duration-150 ease-in-out justify-center items-center min-w-[60px] min-h-[40px]">
                               {idleTimeout}
                             </div>
                           </div>
@@ -1467,7 +1611,7 @@ const Assistants = () => {
                   </CCard>
                 </CTabPane>
               )}
-              {activeKey == "analysis" && (
+              {activeKey === "analysis" && (
                 <CTabPane
                   role="tabpanel"
                   aria-labelledby="analysis-tab"
@@ -1485,12 +1629,12 @@ const Assistants = () => {
                         <div className="flex justify-start items-center">
                           <div className="w-full">
                             <div>
-                              <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              <label className="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                                 Prompt
                               </label>
                               <textarea
                                 rows="6"
-                                class="text-sm rounded-lg block w-full p-2.5"
+                                className="text-sm rounded-lg block w-full p-2.5"
                                 placeholder="You are an expert note taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable."
                               ></textarea>
                             </div>
@@ -1512,7 +1656,7 @@ const Assistants = () => {
                         <div className="flex justify-start items-center">
                           <div className="w-full">
                             <div>
-                              <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              <label className="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                                 Prompt
                               </label>
                               <p>
@@ -1521,20 +1665,20 @@ const Assistants = () => {
                               </p>
                               <textarea
                                 rows="6"
-                                class="text-sm rounded-lg block w-full p-2.5"
+                                className="text-sm rounded-lg block w-full p-2.5"
                                 placeholder="You are an expert note taker. You will be given a transcript of a call and the system prompt of the AI participant. Determine if the call was successful based on the objectives inferred from the system prompt"
                               ></textarea>
                             </div>
                             <hr />
                             <div className="mt-3">
-                              <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                                 Success Evaluation Rubric
                               </label>
                               <div className="text-xs mb-1">
                                 This enforces the rubric of the evaluation upon
                                 the Success Evaluation.
                               </div>
-                              <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                              <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                                 <option>
                                   Select Success Evaluation Rubric
                                 </option>
@@ -1566,7 +1710,7 @@ const Assistants = () => {
                         <div className="flex justify-start items-center">
                           <div className="w-full">
                             <div>
-                              <label class="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              <label className="mb-2 text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                                 Prompt
                               </label>
                               <p>
@@ -1575,19 +1719,19 @@ const Assistants = () => {
                               </p>
                               <textarea
                                 rows="6"
-                                class="text-sm rounded-lg block w-full p-2.5"
+                                className="text-sm rounded-lg block w-full p-2.5"
                                 placeholder="You will be given a transcript of a call and the system prompt of the AI participant. Extract.."
                               ></textarea>
                             </div>
                             <hr />
                             {/* <div className="mt-3">
-                              <label class="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
+                              <label className="text-sm font-medium text-gray-900 dark:text-white flex justify-start items-center">
                                 Data Scheme
                               </label>
                               <div className="text-xs mb-1">
                               This defines the structure of the data to be extracted. Add various properties you want in the Structured Data Output.
                               </div>
-                              <CFormSelect class="text-sm rounded-lg block w-full p-2.5 mb-2">
+                              <CFormSelect className="text-sm rounded-lg block w-full p-2.5 mb-2">
                                 <option>
                                   Select Success Evaluation Rubric
                                 </option>
